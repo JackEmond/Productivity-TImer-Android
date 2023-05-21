@@ -1,2 +1,2 @@
-# Productivity-TImer-Android
+# Productivity Timer
 An Android application for managing your producitivty.
