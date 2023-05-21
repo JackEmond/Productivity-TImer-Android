@@ -1,4 +1,7 @@
-package com.jedesign.productivitytimer;
+package com.jedesign.productivitytimer.StatsFragment;
+
+import com.jedesign.productivitytimer.DataHelper;
+import com.jedesign.productivitytimer.TimerClass;
 
 import java.util.Calendar;
 import androidx.fragment.app.FragmentActivity;

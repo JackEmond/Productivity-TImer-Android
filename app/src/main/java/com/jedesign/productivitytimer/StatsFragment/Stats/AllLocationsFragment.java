@@ -1,4 +1,4 @@
-package com.jedesign.productivitytimer.Stats;
+package com.jedesign.productivitytimer.StatsFragment.Stats;
 
 import android.os.Bundle;
 
@@ -10,21 +10,19 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-
 import com.jedesign.productivitytimer.DataHelper;
 import com.jedesign.productivitytimer.R;
-
 import java.util.List;
 
-public class AllTasksFragment extends Fragment {
+public class AllLocationsFragment extends Fragment {
 
-    public AllTasksFragment() {
+
+    public AllLocationsFragment() {
         // Required empty public constructor
     }
 
-    public static AllTasksFragment newInstance(String param1, String param2) {
-        AllTasksFragment fragment = new AllTasksFragment();
+    public static AllLocationsFragment newInstance(String param1, String param2) {
+        AllLocationsFragment fragment = new AllLocationsFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -36,23 +34,21 @@ public class AllTasksFragment extends Fragment {
         if (getArguments() != null) {
         }
     }
-
     RecyclerView recyclerView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_all_tasks, container, false);
-        recyclerView = v.findViewById(R.id.rvTasks);
+        View v = inflater.inflate(R.layout.fragment_all_locations, container, false);
+        recyclerView = v.findViewById(R.id.rvLocations);
         setRVAdapter();
         return v;
     }
 
     private void setRVAdapter() {
         DataHelper dh = new DataHelper(getActivity());
-        List<String> list = dh.getAllTasks();
-        RecyclerViewBasic adapter = new RecyclerViewBasic(list, "Task");
+        List<String> list = dh.getAllLocations();
+        RecyclerViewBasic adapter = new RecyclerViewBasic(list, "Location");
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(getActivity().getApplicationContext());
 
         recyclerView.setLayoutManager(layoutManager);

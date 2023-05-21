@@ -1,4 +1,4 @@
-package com.jedesign.productivitytimer.Stats;
+package com.jedesign.productivitytimer.StatsFragment.Stats;
 
 import android.os.Bundle;
 

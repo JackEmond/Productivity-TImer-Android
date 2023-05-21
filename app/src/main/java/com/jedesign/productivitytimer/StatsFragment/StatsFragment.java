@@ -1,11 +1,10 @@
-package com.jedesign.productivitytimer;
+package com.jedesign.productivitytimer.StatsFragment;
 
 import android.graphics.Color;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +14,12 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.jedesign.productivitytimer.Stats.AllLocationsFragment;
-import com.jedesign.productivitytimer.Stats.AllTasksFragment;
-import com.jedesign.productivitytimer.Stats.AllTimersFragment;
+import com.jedesign.productivitytimer.DataHelper;
+import com.jedesign.productivitytimer.R;
+import com.jedesign.productivitytimer.StatsFragment.Stats.AllLocationsFragment;
+import com.jedesign.productivitytimer.StatsFragment.Stats.AllTasksFragment;
+import com.jedesign.productivitytimer.StatsFragment.Stats.AllTimersFragment;
+import com.jedesign.productivitytimer.TimerFragment;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.GridLabelRenderer;
 import com.jjoe64.graphview.ValueDependentColor;
@@ -35,7 +37,7 @@ public class StatsFragment extends Fragment {
 
     GraphView graph;
     TextView graphName;
-    Spinner spinnerGraph;
+    Spinner dropDownGraphSelector;
     Button btnAllTimers, btnNewTimer, btnAllLocations, btnAlTasks, btnGenerateData;
 
 
@@ -51,8 +53,8 @@ public class StatsFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_stats, container, false);
 
         //Set Graph Selector
-        spinnerGraph = v.findViewById(R.id.spinnerGraphSelection);
-        initializeSpinnerGraph();
+        dropDownGraphSelector = v.findViewById(R.id.spinnerGraphSelection);
+        initializedropDownGraphSelector();
 
         //Set the graph and its name
         graph = (GraphView) v.findViewById(R.id.graph);
@@ -71,15 +73,15 @@ public class StatsFragment extends Fragment {
         fragmentTransaction.commit();
     }
 
-    private void initializeSpinnerGraph() {
+    private void initializedropDownGraphSelector() {
         ArrayAdapter<CharSequence> spinnerAdapter =ArrayAdapter.createFromResource(getActivity(), R.array.DropDownGraph, android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerGraph.setAdapter(spinnerAdapter);
+        dropDownGraphSelector.setAdapter(spinnerAdapter);
 
-        spinnerGraph.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        dropDownGraphSelector.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                String graphText = spinnerGraph.getSelectedItem().toString();
+                String graphText = dropDownGraphSelector.getSelectedItem().toString();
                 if(graphText.contains("Productivity by Location")){
                     createTimeInEachLocationGraph();
                 }
@@ -123,30 +125,13 @@ public class StatsFragment extends Fragment {
 
         //Set List of Locations
         String[] listOfLocations = getListOfLocations(timeAtEachLocation);
+        Integer[] xAxisValues =timeAtEachLocation.values().toArray(new Integer[0]);
+        String horizontalAxisTitle = "Task";
+        String verticalAxisTitle = "Minutes Timer Ran";
+        String graphNameText = "Productivity During Each Task";
 
-
-        StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graph);
-        staticLabelsFormatter.setHorizontalLabels(listOfLocations);
-
-        //Set GridLabelRenderer
-        GridLabelRenderer glr = graph.getGridLabelRenderer();
-        glr.setLabelFormatter(staticLabelsFormatter);
-
-        //This is Different
-        glr.setHorizontalAxisTitle("Task");
-        glr.setVerticalAxisTitle("Minutes Timer Ran");
-        graphName.setText("Productivity During Each Task");
-
-        // set Viewport
-        setViewPort(graph, timeAtEachLocation.values().toArray(new Integer[0]));
-
-        BarGraphSeries<DataPoint> series = new BarGraphSeries<>(arrDataPoints);
-        series.setAnimated(true);
-        //Change Bars to Black
-        setSeriesColour(series);
-        series.setSpacing(5);
-
-        graph.addSeries(series);
+        createGraph(arrDataPoints, xAxisValues, listOfLocations,  horizontalAxisTitle, verticalAxisTitle);
+        graphName.setText(graphNameText);
 
     }
 
@@ -193,36 +178,42 @@ public class StatsFragment extends Fragment {
 
         //Get Data Points
         DataPoint[] arrDataPoints = getDataPoints(timeAtEachLocation);
+        Integer[] xAxisValues =timeAtEachLocation.values().toArray(new Integer[0]);
 
         //Set List of Locations
         String[] listOfLocations = getListOfLocations(timeAtEachLocation);
+        String horizontalAxisTitle = "Locations";
+        String verticalAxisTitle = "Minutes Timer Ran";
+        String graphNameText = "Productivity at Each Location";
 
+        createGraph(arrDataPoints, xAxisValues, listOfLocations,  horizontalAxisTitle, verticalAxisTitle);
+        graphName.setText(graphNameText);
+    }
 
-        BarGraphSeries<DataPoint> series = new BarGraphSeries<>(arrDataPoints);
+    private void createGraph(DataPoint[] arrDataPoints, Integer[] xAxisValues, String[] listOfLocations, String horizontalAxisTitle, String verticalAxisTitle) {
+
         StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graph);
         staticLabelsFormatter.setHorizontalLabels(listOfLocations);
 
         //Set GridLabelRenderer
         GridLabelRenderer glr = graph.getGridLabelRenderer();
         glr.setLabelFormatter(staticLabelsFormatter);
-        glr.setHorizontalAxisTitle("Locations");
-        glr.setVerticalAxisTitle("Minutes Timer Ran");
-        graphName.setText("Productivity at Each Location");
+        glr.setHorizontalAxisTitle(horizontalAxisTitle);
+        glr.setVerticalAxisTitle(verticalAxisTitle);
 
 
+        ////////Series Data/////////
         // set Viewport
-        setViewPort(graph, timeAtEachLocation.values().toArray(new Integer[0]));
-
+        setViewPort(graph, xAxisValues);
+        BarGraphSeries<DataPoint> series = new BarGraphSeries<>(arrDataPoints);
         series.setAnimated(true);
-
         //Change Bars to Black
         setSeriesColour(series);
-
-
         series.setSpacing(5);
+
+
         graph.addSeries(series);
     }
-
 
 
     private void createTimeProductiveEachDayGraph() {
@@ -233,8 +224,7 @@ public class StatsFragment extends Fragment {
         int[] timeSpentWorkingEachDay = dh.getAverageTimeSpentWorkingEachDay();
         dh.close();
 
-        //Set each day as the datapoint
-        BarGraphSeries<DataPoint> series = new BarGraphSeries<>(new DataPoint[] {
+        DataPoint[] dataPoints = new DataPoint[] {
                 new DataPoint(0, 0), // First and Last have to be empty so the graph displays correctly
                 new DataPoint(1, timeSpentWorkingEachDay[0]),
                 new DataPoint(2, timeSpentWorkingEachDay[1]),
@@ -245,27 +235,18 @@ public class StatsFragment extends Fragment {
                 new DataPoint(7, timeSpentWorkingEachDay[6]),
                 new DataPoint(8, 0), // First and Last have to be empty so the graph displays correctly
 
-        });
+        };
         String[] daysOfWeekArray = new String[] {"","S", "M", "T", "W", "T", "F", "S",""};
-        StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graph);
-        staticLabelsFormatter.setHorizontalLabels(daysOfWeekArray);
+        Integer[] xAxisValues = convertIntArrayToIntegerArray(timeSpentWorkingEachDay);
 
-        //Set GridLabelRenderer
-        GridLabelRenderer glr = graph.getGridLabelRenderer();
-        glr.setLabelFormatter(staticLabelsFormatter);
-        glr.setHorizontalAxisTitle("Day of Week");
-        glr.setVerticalAxisTitle("Minutes Timer Ran");
+        //Set List of Locations
+        String horizontalAxisTitle = "Day of Week";
+        String verticalAxisTitle = "Minutes Timer Ran";
+        String graphNameText = "Time Productive Each DAY";
 
-        series.setAnimated(true);
-        graphName.setText("Time Productive Each Day");
+        createGraph(dataPoints, xAxisValues, daysOfWeekArray,  horizontalAxisTitle, verticalAxisTitle);
+        graphName.setText(graphNameText);
 
-        // set Viewport
-        setViewPort(graph, convertIntArrayToIntegerArray(timeSpentWorkingEachDay));
-
-        //Change Bars to Black
-        setSeriesColour(series);
-        series.setSpacing(15);
-        graph.addSeries(series);
     }
 
     private Integer[] convertIntArrayToIntegerArray(int[] intArray) {

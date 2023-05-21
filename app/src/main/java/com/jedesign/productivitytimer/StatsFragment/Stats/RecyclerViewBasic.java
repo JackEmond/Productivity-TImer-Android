@@ -1,4 +1,4 @@
-package com.jedesign.productivitytimer.Stats;
+package com.jedesign.productivitytimer.StatsFragment.Stats;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
