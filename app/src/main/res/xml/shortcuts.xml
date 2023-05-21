@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This is a sample shortcuts.xml -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <capability android:name="actions.intent.OPEN_APP_FEATURE">
+        <intent
+            android:targetPackage="com.jeTimerApp.appaction"
+            android:targetClass="com.jedesign.productivitytimer.MainActivity">
+            <parameter
+                android:name="feature"
+                android:key="featureParam"/>
+        </intent>
+    </capability>
+    <!-- Open Timer Feature -->
+    <shortcut
+        android:shortcutId="ID_ONE"
+        android:shortcutShortLabel="@string/shorcut_timer"
+        android:shortcutLongLabel="@string/shorcut_timer_long">
+        <capability-binding android:key="actions.intent.OPEN_APP_FEATURE">
+            <parameter-binding
+                android:value="featureParam"
+                android:key="feature"/>
+        </capability-binding>
+    </shortcut>
+
+
+
+    <capability android:name="actions.intent.PAUSE_EXERCISE">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.jeTimerApp.appaction"
+            android:targetClass="com.jedesign.productivitytimer.MainActivity">
+            <parameter
+                android:name="exercise.name"
+                android:key="name"/>
+        </intent>
+    </capability>
+
+
+</shortcuts>
+
+
+    <!--
+    <?xml version ="1.0" encoding="utf-8"?>
+    <shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+            <capability android:name="actions.intent.GET_THING">
+                <intent
+                    android:action="android.intent.action.VIEW"
+                    android:targetPackage="com.jeTimerApp.appaction"
+                    android:targetClass="com.jedesign.productivitytimer.MainActivity">
+                    <parameter
+                        android:name="thing.name"
+                        android:key="q"/>
+                </intent>
+            </capability>
+    </shortcuts>
+    -->
+
+

@@ -1,0 +1,24 @@
+<resources>
+    <string name="app_name">Final Project</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <string name="app_info">
+    Productivity Timer is a mobile app developed to allow you to become a more productive person.
+    \n\n
+    Start a new timer by selecting where you are located and what task you will be completing. The timer will then run even when the app is closed! When you are done working on the task click save and your information will be saved and analyzed.
+    \n\n
+    Go to the stats page and see how long you have been working on a task, what day you are most productive, how long you have spent doing each task, and how long you work at each location.
+    \n\n
+    Use this information to figure out where your strengths and weaknesses are and become a more productive person!
+    </string>
+    <string name="shorcut_timer">Timer Shortcut</string>
+    <string name="shorcut_timer_long">Links to the Timer Fragment and Shows the timer</string>
+
+    <string-array name="DropDownGraph">
+        <item>Productivity by Day of the Week</item>
+        <item>Productivity by Location</item>
+        <item>Productivity by Task</item>
+    </string-array>
+
+</resources>
