@@ -8,7 +8,12 @@ import androidx.fragment.app.FragmentManager;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.jedesign.productivitytimer.StatsFragment.StatsFragment;
+import com.jedesign.productivitytimer.TimerFragment.CreateTimerFragment;
+import com.jedesign.productivitytimer.TimerFragment.TimerFragment;
+import com.jedesign.productivitytimer.TimerFragment.TimerPreferences;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.MenuItem;
 
@@ -19,6 +24,7 @@ public class MainActivity extends AppCompatActivity {
     SettingsFragment settingsFragment = new SettingsFragment();
     TimerFragment timerFragment = new TimerFragment();
     StatsFragment statsFragment = new StatsFragment();
+    CreateTimerFragment createTimerFragment = new CreateTimerFragment();
     private static String APP_FEATURE = "featureParam";
 
 
@@ -29,12 +35,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         bnv = findViewById(R.id.bottomNavigationView);
-
+        startTimerFragment();
         setBottomNavigationView();
         setActiveFragment();
 
     }
 
+    private void startTimerFragment() {
+        if(timerIsActive()){
+            setCurrentFragment(timerFragment);
+        }
+        else{
+            setCurrentFragment(createTimerFragment);
+        }
+    }
 
 
     private void setBottomNavigationView(){
@@ -51,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
                         setCurrentFragment(statsFragment);
                         return true;
                     case R.id.menu_timer:
-                        setCurrentFragment(timerFragment);
+                        startTimerFragment();
                         return true;
                 }
                 return false;
@@ -59,6 +73,15 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private boolean timerIsActive() {
+        long timeCalendarStarted = TimerPreferences.getTimeCalendarStartedFromPreferences(this);
+        if(timerStarted(timeCalendarStarted)) {
+            return true;
+        }
+        return false;
+    }
+
+    private boolean timerStarted(long timeCalendarStarted) { return (timeCalendarStarted != -1);}
 
     private void setActiveFragment() {
         String getAppFeature = "";

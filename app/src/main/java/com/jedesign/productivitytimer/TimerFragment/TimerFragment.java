@@ -1,31 +1,28 @@
-package com.jedesign.productivitytimer;
+package com.jedesign.productivitytimer.TimerFragment;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.RelativeSizeSpan;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+
+import com.jedesign.productivitytimer.DataHelper;
+import com.jedesign.productivitytimer.R;
+import com.jedesign.productivitytimer.TimerClass;
 
 import java.util.Calendar;
-import java.util.List;
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -57,21 +54,17 @@ public class TimerFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_timer, container, false);
         initializeLayout(v);
         setTimerIfAlreadyStarted(v);
-        setPauseButtonOnClick();
-        setSaveButtonOnClick();
-        setCancelButtonOnClick();
-        //setTasks();
-        //setLocations();
-
-        if(getActivity().getIntent().hasExtra(PAUSE_APP)){
-            pauseTimer();
-        }
-        if(getActivity().getIntent().hasExtra("name")){
-            pauseTimer();
-        }
+        setButtonOnClicks();
 
         return v;
     }
+
+    private void setButtonOnClicks() {
+        setCancelButtonOnClick();
+        setSaveButtonOnClick();
+        setPauseButtonOnClick();
+    }
+
 
     private void initializeLayout(View v) {
         timerText = v.findViewById(R.id.txtTimer);
@@ -83,22 +76,21 @@ public class TimerFragment extends Fragment {
 
 
     private void setTimerIfAlreadyStarted(View v) {
-        long timeCalendarStarted = getTimeCalendarStartedFromPreferences();
+        long timeCalendarStarted = TimerPreferences.getTimeCalendarStartedFromPreferences(getActivity());
 
         if(timerStarted(timeCalendarStarted)){
             //Set Timer to Current time minus when the Calendar started
-            long totalTimePaused = getTotalTimePausedFromPreferences();
+            long totalTimePaused = TimerPreferences.getTotalTimePausedFromPreferences(getActivity());
             long currTimeInSeconds = Calendar.getInstance().getTimeInMillis()/1000;
             time = currTimeInSeconds - (timeCalendarStarted/1000) - totalTimePaused;
 
-            long timePaused = getCurrTimePausedFromPreferences();
+            long timePaused = TimerPreferences.getCurrTimePausedFromPreferences(getActivity());
             if(timePaused != -1){ // Timer should be paused
                 long timeElapsedSincePause = currTimeInSeconds - (timePaused/1000);
                 time = time - timeElapsedSincePause;
                 pauseButton.setText("RESUME");
                 paused = true;
                 timerText.setText(getTimerText());
-
             }
             else{ //Timer should be running
                 if(!timerRunning) startTimer();
@@ -114,15 +106,10 @@ public class TimerFragment extends Fragment {
         pauseButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!paused) { // Pause the timer
+                if (!paused)
                     pauseTimer();
-                }
-                else{ // Resume the timer
-                    paused =false;
-                    pauseButton.setText("PAUSE");
-                    startTimer();
-                    updateTotalTimePaused();
-                }
+                else
+                   resumeTimer();
             }
         });
     }
@@ -130,42 +117,15 @@ public class TimerFragment extends Fragment {
    private void pauseTimer(){
         pauseButton.setText("RESUME");
         timer.cancel();
-        saveCurrTimePausedToSharedPreferences(Calendar.getInstance().getTimeInMillis());
+        TimerPreferences.saveCurrTimePausedToSharedPreferences(Calendar.getInstance().getTimeInMillis(), getActivity());
         paused = true;
     }
 
-    private long getTotalTimePausedFromPreferences() {
-        SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        long totalTimePaused = pref.getLong("TotalTimePaused", 0);
-        return totalTimePaused;
-    }
-
-
-    private void updateTotalTimePaused() {
-        long initialTimePaused = getCurrTimePausedFromPreferences();
-        long currTimePaused  = (Calendar.getInstance().getTimeInMillis() - initialTimePaused) / 1000;
-        long totalTimePaused = getTotalTimePausedFromPreferences();
-
-        SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE );
-        SharedPreferences.Editor editor= pref.edit();
-        editor.putLong("TotalTimePaused", currTimePaused + totalTimePaused);
-        editor.commit();
-
-        saveCurrTimePausedToSharedPreferences(-1);
-    }
-
-    private void saveCurrTimePausedToSharedPreferences(long time) {
-        SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE );
-        SharedPreferences.Editor editor= pref.edit();
-        editor.putLong("TimerPaused", time);
-        editor.commit();
-    }
-
-
-    public long getCurrTimePausedFromPreferences(){
-        SharedPreferences calendarPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        long calendarInMillis = calendarPref.getLong("TimerPaused", -1);
-        return calendarInMillis;
+    private void resumeTimer(){
+        paused =false;
+        pauseButton.setText("PAUSE");
+        startTimer();
+        TimerPreferences.updateTotalTimePaused(getActivity());
     }
 
     private void setSaveButtonOnClick() {
@@ -181,10 +141,10 @@ public class TimerFragment extends Fragment {
 
             private void insertTimerIntoDatabase() {
                 //Get Data to be inserted
-                String location = getLocationFromPreferences();
-                String task = getTaskFromPreferences();
+                String location = TimerPreferences.getLocationFromPreferences(getActivity());
+                String task = TimerPreferences.getTaskFromPreferences(getActivity());
                 int duration = Math.round(time);
-                TimerClass timer = new TimerClass(getTimeCalendarStartedFromPreferences(), duration,location, task);
+                TimerClass timer = new TimerClass(TimerPreferences.getTimeCalendarStartedFromPreferences(getActivity()), duration,location, task);
 
                 //Insert Timer
                 DataHelper dh = new DataHelper(getActivity());
@@ -201,15 +161,6 @@ public class TimerFragment extends Fragment {
     }
 
 
-    private String getTaskFromPreferences() {
-        SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        return pref.getString("Task", "");
-    }
-
-    private String getLocationFromPreferences() {
-        SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        return pref.getString("Locations", "");
-    }
 
 
     private void setCancelButtonOnClick() {
@@ -233,19 +184,12 @@ public class TimerFragment extends Fragment {
     private void resetData(View v) {
         if(!paused) timer.cancel();
         resetTimerPreferences();
-        resetTotalTimePaused();
-        saveCurrTimePausedToSharedPreferences(-1);
+        TimerPreferences.resetTotalTimePaused(getActivity());
+        TimerPreferences.saveCurrTimePausedToSharedPreferences(-1,getActivity());
         resetTimerInfo(v);
         pauseButton.setText("PAUSE");
     }
 
-
-    private void resetTotalTimePaused() {
-        SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE );
-        SharedPreferences.Editor editor= pref.edit();
-        editor.putLong("TotalTimePaused", 0);
-        editor.commit();
-    }
 
     private void resetTimerPreferences() {
         SharedPreferences calendarPref = getActivity().getPreferences(Context.MODE_PRIVATE );
@@ -253,13 +197,6 @@ public class TimerFragment extends Fragment {
         editor.putLong("TimerStartTime", -1);
         editor.commit();
     }
-
-    public long getTimeCalendarStartedFromPreferences(){
-        SharedPreferences calendarPref = getActivity().getPreferences(Context.MODE_PRIVATE);
-        long calendarInMillis = calendarPref.getLong("TimerStartTime", -1);
-        return calendarInMillis;
-    }
-
 
 
     private void startTimer() {

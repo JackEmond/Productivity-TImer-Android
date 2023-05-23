@@ -1,14 +1,61 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".CreateTimerFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    android:orientation="vertical"
+    android:layout_marginTop="30dp"
+    android:gravity="center_horizontal|top"
+    tools:context="com.jedesign.productivitytimer.TimerFragment.CreateTimerFragment">
+
+    <!-- "PRODUCTIVITY TIMER" text -->
     <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:fontFamily="@font/bebas_neue"
+        android:text="CREATE PRODUCTIVITY TIMER"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="55dp" />
 
-</FrameLayout>
+
+    <!-- Task Completing Text View  -->
+    <AutoCompleteTextView
+        android:id="@+id/actvTask"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:completionHint="Select a Location"
+        android:layout_margin="20dp"
+        android:inputType="textAutoComplete"
+        android:hint="Task Completing"
+        />
+
+    <!-- Location Text View  -->
+    <AutoCompleteTextView
+        android:id="@+id/actvLocation"
+        android:layout_margin="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Location"
+        android:ems="10"
+        android:inputType="textAutoComplete"
+        />
+
+
+    <!-- Start Predictive Work Button  -->
+    <Button
+        android:id="@+id/btnTimer"
+        android:layout_margin="20dp"
+        android:padding="20dp"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="startTimer"
+        android:text="Start Productive Work" />
+
+    <!-- To Do Add Pomodoro Technique -->
+
+</LinearLayout>

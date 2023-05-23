@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:layout_marginTop="30dp"
     android:gravity="center_horizontal|top"
-    tools:context="com.jedesign.productivitytimer.TimerFragment">
+    tools:context="com.jedesign.productivitytimer.TimerFragment.TimerFragment">
 
     <TextView
         android:layout_width="wrap_content"
@@ -19,33 +19,12 @@
         android:textColor="@color/black"
         android:textSize="55dp" />
 
-    <AutoCompleteTextView
-        android:id="@+id/actvTask"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:completionHint="Select a Location"
-        android:layout_margin="20dp"
-        android:inputType="textAutoComplete"
-        android:hint="Task Completing"
-         />
-
-    <AutoCompleteTextView
-        android:id="@+id/actvLocation"
-        android:layout_margin="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Location"
-        android:ems="10"
-        android:inputType="textAutoComplete"
-        />
 
     <!-- To Do Add Pomodore Technique -->
 
     <TextView
         android:id="@+id/txtTimer"
         android:layout_marginTop="30dp"
-        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAlignment="center"
@@ -56,20 +35,10 @@
         android:background="@color/black"
         android:text="00:00" />
 
-    <Button
-        android:id="@+id/btnTimer"
-        android:layout_margin="20dp"
-        android:padding="20dp"
-        android:gravity="center"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="startTimer"
-        android:text="Start Productive Work" />
 
     <LinearLayout
         android:layout_height="fill_parent"
         android:layout_width="fill_parent"
-        android:visibility="gone"
         android:id="@+id/ll_pause_and_stop_button"
         android:orientation="horizontal">
 

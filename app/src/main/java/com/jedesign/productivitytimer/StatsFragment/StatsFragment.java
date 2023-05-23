@@ -1,6 +1,5 @@
 package com.jedesign.productivitytimer.StatsFragment;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -14,22 +13,13 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import com.jedesign.productivitytimer.DataHelper;
 import com.jedesign.productivitytimer.R;
 import com.jedesign.productivitytimer.StatsFragment.Stats.AllLocationsFragment;
 import com.jedesign.productivitytimer.StatsFragment.Stats.AllTasksFragment;
 import com.jedesign.productivitytimer.StatsFragment.Stats.AllTimersFragment;
-import com.jedesign.productivitytimer.TimerFragment;
+import com.jedesign.productivitytimer.StatsFragment.Stats.GraphSelector;
+import com.jedesign.productivitytimer.TimerFragment.TimerFragment;
 import com.jjoe64.graphview.GraphView;
-import com.jjoe64.graphview.GridLabelRenderer;
-import com.jjoe64.graphview.ValueDependentColor;
-import com.jjoe64.graphview.Viewport;
-import com.jjoe64.graphview.helper.StaticLabelsFormatter;
-import com.jjoe64.graphview.series.BarGraphSeries;
-import com.jjoe64.graphview.series.DataPoint;
-
-import java.util.Arrays;
-import java.util.HashMap;
 
 public class StatsFragment extends Fragment {
 
@@ -54,12 +44,11 @@ public class StatsFragment extends Fragment {
 
         //Set Graph Selector
         dropDownGraphSelector = v.findViewById(R.id.spinnerGraphSelection);
-        initializedropDownGraphSelector();
+        initializedDropDownGraphSelector();
 
         //Set the graph and its name
-        graph = (GraphView) v.findViewById(R.id.graph);
         graphName = v.findViewById(R.id.tvGraphTitle);
-
+        graph = v.findViewById(R.id.graph);
         initializeButtonClicks(v);
 
         return v;
@@ -73,7 +62,9 @@ public class StatsFragment extends Fragment {
         fragmentTransaction.commit();
     }
 
-    private void initializedropDownGraphSelector() {
+
+
+    private void initializedDropDownGraphSelector() {
         ArrayAdapter<CharSequence> spinnerAdapter =ArrayAdapter.createFromResource(getActivity(), R.array.DropDownGraph, android.R.layout.simple_spinner_item);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         dropDownGraphSelector.setAdapter(spinnerAdapter);
@@ -83,13 +74,19 @@ public class StatsFragment extends Fragment {
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 String graphText = dropDownGraphSelector.getSelectedItem().toString();
                 if(graphText.contains("Productivity by Location")){
-                    createTimeInEachLocationGraph();
+                    GraphSelector.createTimeInEachLocationGraph(graph, getActivity());
+                    graphName.setText("Productivity at Each Location");
+
                 }
                 else if(graphText.contains("Productivity by Day of the Week")){
-                    createTimeProductiveEachDayGraph();
+                    GraphSelector.createTimeProductiveEachDayGraph(graph, getActivity());
+                    graphName.setText("Time Productive Each Day");
+
                 }
                 else if(graphText.contains("Productivity by Task")){
-                    createTimeCompletingEachTaskGraph();
+                    graph.removeAllSeries();
+                    GraphSelector.createTimeCompletingEachTaskGraph(graph, getActivity());
+                    graphName.setText("Productivity During Each Task");
                 }
             }
 
@@ -98,160 +95,7 @@ public class StatsFragment extends Fragment {
         });
     }
 
-    private DataPoint[] getDataPoints(HashMap<String, Integer> timeAtEachLocation){
-        DataPoint[] arrDataPoints = new DataPoint[timeAtEachLocation.size()+2];
-        arrDataPoints[0] = new DataPoint(0,0);
-        int j = 1;
-        for(Integer duration : timeAtEachLocation.values()) {
-            arrDataPoints[j] = new DataPoint(j, duration);
-            j++;
-        }
-        arrDataPoints[j] = new DataPoint(j,0);
-        return arrDataPoints;
-    }
 
-
-
-    private void createTimeCompletingEachTaskGraph(){
-        graph.removeAllSeries();
-
-        //Get time at  each location
-        DataHelper dh = new DataHelper(getActivity());
-        HashMap<String, Integer> timeAtEachLocation = dh.getTimeCompletingEachTask();
-        dh.close();
-
-        //Get Data Points
-        DataPoint[] arrDataPoints = getDataPoints(timeAtEachLocation);
-
-        //Set List of Locations
-        String[] listOfLocations = getListOfLocations(timeAtEachLocation);
-        Integer[] xAxisValues =timeAtEachLocation.values().toArray(new Integer[0]);
-        String horizontalAxisTitle = "Task";
-        String verticalAxisTitle = "Minutes Timer Ran";
-        String graphNameText = "Productivity During Each Task";
-
-        createGraph(arrDataPoints, xAxisValues, listOfLocations,  horizontalAxisTitle, verticalAxisTitle);
-        graphName.setText(graphNameText);
-
-    }
-
-    private void setSeriesColour(BarGraphSeries<DataPoint> series) {
-        series.setValueDependentColor(new ValueDependentColor<DataPoint>() {
-            @Override
-            public int get(DataPoint data) {return Color.rgb(0, 0, 0);}
-        });
-
-    }
-
-    private void setViewPort(GraphView graph, Integer[] dataPoints) {
-        Viewport vp = graph.getViewport();
-        vp.setYAxisBoundsManual(true);
-        vp.setMinY(0); vp.setMinX(0);
-        vp.setMaxY(getMaxYValue(dataPoints));
-    }
-
-    private double getMaxYValue(Integer[] dataPoints) {
-        int maxYValue = 0 ;
-        for(int i=0; i< dataPoints.length; i++){ //For Each Day
-            int timeSpentWorking = dataPoints[i];  // Time spent working that day
-            if(maxYValue < timeSpentWorking) maxYValue = timeSpentWorking;
-        }
-        return maxYValue + 10;
-    }
-
-    private String[] getListOfLocations(HashMap<String, Integer> timeAtEachLocation) {
-        String[] listOfLocations = new String[timeAtEachLocation.size()+2];
-        listOfLocations[0] = "";
-        int j=1;
-        for(String location : timeAtEachLocation.keySet()){
-            listOfLocations[j++] = location;
-        }
-        listOfLocations[j] = "";
-        return listOfLocations;
-    }
-
-    private void createTimeInEachLocationGraph() {
-        graph.removeAllSeries();
-        DataHelper dh = new DataHelper(getActivity());
-        HashMap<String, Integer> timeAtEachLocation = dh.getTimeAtEachLocation();
-        dh.close();
-
-        //Get Data Points
-        DataPoint[] arrDataPoints = getDataPoints(timeAtEachLocation);
-        Integer[] xAxisValues =timeAtEachLocation.values().toArray(new Integer[0]);
-
-        //Set List of Locations
-        String[] listOfLocations = getListOfLocations(timeAtEachLocation);
-        String horizontalAxisTitle = "Locations";
-        String verticalAxisTitle = "Minutes Timer Ran";
-        String graphNameText = "Productivity at Each Location";
-
-        createGraph(arrDataPoints, xAxisValues, listOfLocations,  horizontalAxisTitle, verticalAxisTitle);
-        graphName.setText(graphNameText);
-    }
-
-    private void createGraph(DataPoint[] arrDataPoints, Integer[] xAxisValues, String[] listOfLocations, String horizontalAxisTitle, String verticalAxisTitle) {
-
-        StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(graph);
-        staticLabelsFormatter.setHorizontalLabels(listOfLocations);
-
-        //Set GridLabelRenderer
-        GridLabelRenderer glr = graph.getGridLabelRenderer();
-        glr.setLabelFormatter(staticLabelsFormatter);
-        glr.setHorizontalAxisTitle(horizontalAxisTitle);
-        glr.setVerticalAxisTitle(verticalAxisTitle);
-
-
-        ////////Series Data/////////
-        // set Viewport
-        setViewPort(graph, xAxisValues);
-        BarGraphSeries<DataPoint> series = new BarGraphSeries<>(arrDataPoints);
-        series.setAnimated(true);
-        //Change Bars to Black
-        setSeriesColour(series);
-        series.setSpacing(5);
-
-
-        graph.addSeries(series);
-    }
-
-
-    private void createTimeProductiveEachDayGraph() {
-        graph.removeAllSeries();
-        //Get Total time spent working each day from database
-        // [0] = Sunday, [6] = Saturday
-        DataHelper dh = new DataHelper(getActivity());
-        int[] timeSpentWorkingEachDay = dh.getAverageTimeSpentWorkingEachDay();
-        dh.close();
-
-        DataPoint[] dataPoints = new DataPoint[] {
-                new DataPoint(0, 0), // First and Last have to be empty so the graph displays correctly
-                new DataPoint(1, timeSpentWorkingEachDay[0]),
-                new DataPoint(2, timeSpentWorkingEachDay[1]),
-                new DataPoint(3, timeSpentWorkingEachDay[2]),
-                new DataPoint(4, timeSpentWorkingEachDay[3]),
-                new DataPoint(5, timeSpentWorkingEachDay[4]),
-                new DataPoint(6, timeSpentWorkingEachDay[5]),
-                new DataPoint(7, timeSpentWorkingEachDay[6]),
-                new DataPoint(8, 0), // First and Last have to be empty so the graph displays correctly
-
-        };
-        String[] daysOfWeekArray = new String[] {"","S", "M", "T", "W", "T", "F", "S",""};
-        Integer[] xAxisValues = convertIntArrayToIntegerArray(timeSpentWorkingEachDay);
-
-        //Set List of Locations
-        String horizontalAxisTitle = "Day of Week";
-        String verticalAxisTitle = "Minutes Timer Ran";
-        String graphNameText = "Time Productive Each DAY";
-
-        createGraph(dataPoints, xAxisValues, daysOfWeekArray,  horizontalAxisTitle, verticalAxisTitle);
-        graphName.setText(graphNameText);
-
-    }
-
-    private Integer[] convertIntArrayToIntegerArray(int[] intArray) {
-        return Arrays.stream(intArray).boxed().toArray( Integer[]::new );
-    }
 
 
     private void initializeButtonClicks(View v) {
@@ -281,7 +125,6 @@ public class StatsFragment extends Fragment {
         });
     }
 
-
     private void initializeBtnGenerateDataClick() {
         btnGenerateData.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -296,6 +139,5 @@ public class StatsFragment extends Fragment {
         getActivity().getSupportFragmentManager().beginTransaction().detach(this).commit();
         //getActivity().getSupportFragmentManager().beginTransaction().attach(this).commit();
     }
-
 
 }

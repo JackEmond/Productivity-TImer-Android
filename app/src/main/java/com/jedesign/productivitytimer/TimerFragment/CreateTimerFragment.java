@@ -1,4 +1,4 @@
-package com.jedesign.productivitytimer;
+package com.jedesign.productivitytimer.TimerFragment;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -13,9 +13,12 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 
+import com.jedesign.productivitytimer.DataHelper;
+import com.jedesign.productivitytimer.R;
+import com.jedesign.productivitytimer.TimerFragment.TimerFragment;
+
 import java.util.Calendar;
 import java.util.List;
-import java.util.Timer;
 
 public class CreateTimerFragment extends Fragment {
     public CreateTimerFragment() {
@@ -25,10 +28,6 @@ public class CreateTimerFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        long timeCalendarStarted = getTimeCalendarStartedFromPreferences();
-        if(timerStarted(timeCalendarStarted)) {
-
-        }
     }
 
     Button timerButton;
@@ -57,11 +56,13 @@ public class CreateTimerFragment extends Fragment {
         actvTask = v.findViewById(R.id.actvTask);
     }
 
+    /*
     public long getTimeCalendarStartedFromPreferences(){
         SharedPreferences calendarPref = getActivity().getPreferences(Context.MODE_PRIVATE);
         long calendarInMillis = calendarPref.getLong("TimerStartTime", -1);
         return calendarInMillis;
     }
+     */
 
     private void setLocations() {
         DataHelper dh = new DataHelper(getActivity());

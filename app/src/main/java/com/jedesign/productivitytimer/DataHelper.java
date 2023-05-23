@@ -65,10 +65,6 @@ public class DataHelper extends SQLiteOpenHelper {
                 TASK_NAME + " TEXT" +
                 ")";
 
-        String ALL_MEETINGS_QUERY = "SELECT " +
-                "location, date, meetings.id " +
-                "FROM MEETINGS LEFT OUTER JOIN LOCATIONS ON meetings.locationId = locations.id " +
-                "ORDER BY date ASC";
         db.execSQL(CREATE_TABLE_TIMER);
         db.execSQL(CREATE_TABLE_LOCATIONS);
         db.execSQL(CREATE_TABLE_TASKS);
@@ -79,7 +75,13 @@ public class DataHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {        //How to migrate or reconstruct data from old version to new on upgrade    } }
     }
 
+
+    //Tasks
     public long addOrFindTask(String task) {
+        // A method that adds or finds a given task in the database based on the name of the task
+        // If the task already exists then the taskID is returned
+        // If the task does not exist then a new task is created and the newly created taskID is returned
+
         SQLiteDatabase db = getWritableDatabase();
 
         //Determine if the location already exists
@@ -87,8 +89,9 @@ public class DataHelper extends SQLiteOpenHelper {
                 + " FROM " + TABLE_TASKS + " WHERE " + TASK_NAME + "= '" + task +"'";
 
         Cursor cursor = db.rawQuery(FIND_MATCHING_TASK_QUERY, null);
+
         //Item already exists return the id
-        if(cursor.moveToFirst()){ return cursor.getLong(0);}
+        if(cursor.moveToFirst()){ db.close(); return cursor.getLong(0); }
 
         //Item does not already exist. Insert into database and return the id
         ContentValues cvTask =new ContentValues();
@@ -98,6 +101,81 @@ public class DataHelper extends SQLiteOpenHelper {
         return id;
     }
 
+    public List<String> getAllTasks() {
+        List<String> tasks = new ArrayList<>();
+        String ALL_TASKS_QUERY = "SELECT " + TASK_NAME + " FROM " + TABLE_TASKS;
+        Cursor cursor = getReadableDatabase().rawQuery(ALL_TASKS_QUERY, null);
+
+        try {
+            if (cursor.moveToFirst()) { // If their are any tasks in the database
+                do { //Get each task and add to list of tasks
+                    String task = cursor.getString(0);
+                    if(!task.equals("")) tasks.add(task);
+                } while(cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Error while trying to get tasks from database");
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+        return tasks;
+    }
+
+    public boolean DeleteTask(String task) {
+        SQLiteDatabase db = getReadableDatabase();
+        String IS_TASK_IN_TIMER_QUERY = "SELECT count(*) FROM "+ TABLE_TIMER+
+                " LEFT OUTER JOIN task ON timers.taskId = task.id WHERE task.name = '" + task + "'";
+        Cursor c = db.rawQuery(IS_TASK_IN_TIMER_QUERY, null);
+        c.moveToFirst();
+        boolean taskIsInTimer = (c.getInt(0)>0)? true: false;
+        if(taskIsInTimer) return false;  // Dont Delete the location since their is already a existing meeting
+
+        //No meetings use the location so it is safe to delete the location
+        String whereArgs[] ={task};
+        db.delete(DataHelper.TABLE_LOCATIONS, "location=?" , whereArgs);
+        db.close();
+        return true;
+    }
+
+    public HashMap<String, Integer> getTimeCompletingEachTask() {
+        HashMap<String, Integer> map = new HashMap<>();
+
+        String EACH_DATE_QUERY =
+                " SELECT duration, task.name FROM timers " +
+                        "INNER JOIN task on timers.taskId = task.id ";
+
+
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor = db.rawQuery(EACH_DATE_QUERY, null);
+
+        try {
+            if (cursor.moveToFirst()) {
+                do {
+
+                    int durationInMinutes = cursor.getInt(0) / 60;
+                    String location = cursor.getString(1);
+                    if(!location.equals("")){ // If the location is not empty than the count either the time completing the task gets added to the map or a new location is added.
+                        int count = map.containsKey(location) ? map.get(location) : 0;
+                        map.put(location, count + durationInMinutes);
+                    }
+                } while (cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            Log.d(TAG, "Error while trying to get info from database in getAverageTimeSpentWorkingEachDay()");
+        } finally {
+            if (cursor != null && !cursor.isClosed()) {
+                cursor.close();
+            }
+        }
+        return map;
+
+    }
+
+
+
+    //Locations
     public long addOrFindLocation(String location) {
             SQLiteDatabase db = getWritableDatabase();
 
@@ -115,114 +193,6 @@ public class DataHelper extends SQLiteOpenHelper {
             long id = db.insert(DataHelper.TABLE_LOCATIONS,null, cvLocation);
             db.close();
             return id;
-    }
-
-    public void openDatabase(){
-        SQLiteDatabase db = getWritableDatabase();
-
-    }
-    public void addTimer(TimerClass timer, long taskId, long locationId) {
-        //Get Content values to be inserted into database
-        ContentValues cv =new ContentValues();
-        cv.put(TIMER_DURATION, timer.getDuration());
-        cv.put(TIMER_LOCATION_ID, locationId);
-        cv.put(TIMER_TASK_ID, taskId);
-        cv.put(TIMER_START_TIME, timer.getStartingTime());
-
-        //Insert Data into Database
-        SQLiteDatabase db = getWritableDatabase();
-        db.insert(DataHelper.TABLE_TIMER,null, cv);
-        db.close();
-    }
-
-
-    public ArrayList<TimerClass> getAllTimers() {
-        ArrayList<TimerClass> timers = new ArrayList<>();
-
-        String ALL_TIMERS_QUERY =
-                " SELECT startTime, duration, location ,name FROM timers " +
-                        "INNER JOIN locations on timers.locaitonId = locations.id " +
-                        "INNER JOIN task on  timers.taskId = task.id " +
-                        "ORDER BY startTime DESC";
-
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery(ALL_TIMERS_QUERY, null);
-
-        try {
-            if (cursor.moveToFirst()) {
-                do {
-                    long startTime = cursor.getLong(0);
-                    int duration = cursor.getInt(1);
-                    String location = cursor.getString(2);
-                    String task = cursor.getString(3);
-                    TimerClass timer = new TimerClass(startTime, duration, location, task);
-                    timers.add(timer);
-                } while (cursor.moveToNext());
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Error while trying to get timers from database in getAllTimers()");
-        } finally {
-            if (cursor != null && !cursor.isClosed()) {
-                cursor.close();
-            }
-        }
-        return timers;
-    }
-
-    public int[] getAverageTimeSpentWorkingEachDay() {
-            int[] timeSpentWorkingEachDay = new int[7];
-
-
-            String EACH_DATE_QUERY =
-                    " SELECT startTime, duration FROM timers " +
-                            "ORDER BY startTime DESC";
-
-            SQLiteDatabase db = getReadableDatabase();
-            Cursor cursor = db.rawQuery(EACH_DATE_QUERY, null);
-
-            try {
-                if (cursor.moveToFirst()) {
-                    do {
-                        long startTime = cursor.getLong(0);
-                        int durationInMinutes = cursor.getInt(1) / 60;
-
-                        Calendar cal = new GregorianCalendar();
-                        cal.setTimeInMillis(startTime);
-                        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
-                        timeSpentWorkingEachDay[dayOfWeek-1] += durationInMinutes;
-                    } while (cursor.moveToNext());
-                }
-            } catch (Exception e) {
-                Log.d(TAG, "Error while trying to get info from database in getAverageTimeSpentWorkingEachDay()");
-            } finally {
-                if (cursor != null && !cursor.isClosed()) {
-                    cursor.close();
-                }
-            }
-            return timeSpentWorkingEachDay;
-
-    }
-
-    public List<String> getAllTasks() {
-        List<String> tasks = new ArrayList<>();
-        String ALL_TASKS_QUERY = "SELECT " + TASK_NAME + " FROM " + TABLE_TASKS;
-        SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery(ALL_TASKS_QUERY, null);
-        try {
-            if (cursor.moveToFirst()) {
-                do {
-                    String task = cursor.getString(0);
-                    if(!task.equals("")) tasks.add(task);
-                } while(cursor.moveToNext());
-            }
-        } catch (Exception e) {
-            Log.d(TAG, "Error while trying to get tasks from database");
-        } finally {
-            if (cursor != null && !cursor.isClosed()) {
-                cursor.close();
-            }
-        }
-        return tasks;
     }
 
 
@@ -298,55 +268,90 @@ public class DataHelper extends SQLiteOpenHelper {
         return true;
     }
 
-    public boolean DeleteTask(String task) {
-        SQLiteDatabase db = getReadableDatabase();
-        String IS_TASK_IN_TIMER_QUERY = "SELECT count(*) FROM "+ TABLE_TIMER+
-                " LEFT OUTER JOIN task ON timers.taskId = task.id WHERE task.name = '" + task + "'";
-        Cursor c = db.rawQuery(IS_TASK_IN_TIMER_QUERY, null);
-        c.moveToFirst();
-        boolean taskIsInTimer = (c.getInt(0)>0)? true: false;
-        if(taskIsInTimer) return false;  // Dont Delete the location since their is already a existing meeting
 
-        //No meetings use the location so it is safe to delete the location
-        String whereArgs[] ={task};
-        db.delete(DataHelper.TABLE_LOCATIONS, "location=?" , whereArgs);
+
+    //Timer
+    public void addTimer(TimerClass timer, long taskId, long locationId) {
+        //Get Content values to be inserted into database
+        ContentValues cv =new ContentValues();
+        cv.put(TIMER_DURATION, timer.getDuration());
+        cv.put(TIMER_LOCATION_ID, locationId);
+        cv.put(TIMER_TASK_ID, taskId);
+        cv.put(TIMER_START_TIME, timer.getStartingTime());
+
+        //Insert Data into Database
+        SQLiteDatabase db = getWritableDatabase();
+        db.insert(DataHelper.TABLE_TIMER,null, cv);
         db.close();
-        return true;
     }
 
-    public HashMap<String, Integer> getTimeCompletingEachTask() {
-        HashMap<String, Integer> map = new HashMap<>();
+    public ArrayList<TimerClass> getAllTimers() {
+        ArrayList<TimerClass> timers = new ArrayList<>();
 
-        String EACH_DATE_QUERY =
-                " SELECT duration, task.name FROM timers " +
-                        "INNER JOIN task on timers.taskId = task.id ";
-
+        String ALL_TIMERS_QUERY =
+                " SELECT startTime, duration, location ,name FROM timers " +
+                        "INNER JOIN locations on timers.locaitonId = locations.id " +
+                        "INNER JOIN task on  timers.taskId = task.id " +
+                        "ORDER BY startTime DESC";
 
         SQLiteDatabase db = getReadableDatabase();
-        Cursor cursor = db.rawQuery(EACH_DATE_QUERY, null);
+        Cursor cursor = db.rawQuery(ALL_TIMERS_QUERY, null);
 
         try {
             if (cursor.moveToFirst()) {
                 do {
-
-                    int durationInMinutes = cursor.getInt(0) / 60;
-                    String location = cursor.getString(1);
-                    if(!location.equals("")){ // If the location is not empty than the count either the time completing the task gets added to the map or a new location is added.
-                        int count = map.containsKey(location) ? map.get(location) : 0;
-                        map.put(location, count + durationInMinutes);
-                    }
+                    long startTime = cursor.getLong(0);
+                    int duration = cursor.getInt(1);
+                    String location = cursor.getString(2);
+                    String task = cursor.getString(3);
+                    TimerClass timer = new TimerClass(startTime, duration, location, task);
+                    timers.add(timer);
                 } while (cursor.moveToNext());
             }
         } catch (Exception e) {
-            Log.d(TAG, "Error while trying to get info from database in getAverageTimeSpentWorkingEachDay()");
+            Log.d(TAG, "Error while trying to get timers from database in getAllTimers()");
         } finally {
             if (cursor != null && !cursor.isClosed()) {
                 cursor.close();
             }
         }
-        return map;
+        return timers;
+    }
+
+    public int[] getAverageTimeSpentWorkingEachDay() {
+            int[] timeSpentWorkingEachDay = new int[7];
+
+
+            String EACH_DATE_QUERY =
+                    " SELECT startTime, duration FROM timers " +
+                            "ORDER BY startTime DESC";
+
+            SQLiteDatabase db = getReadableDatabase();
+            Cursor cursor = db.rawQuery(EACH_DATE_QUERY, null);
+
+            try {
+                if (cursor.moveToFirst()) {
+                    do {
+                        long startTime = cursor.getLong(0);
+                        int durationInMinutes = cursor.getInt(1) / 60;
+
+                        Calendar cal = new GregorianCalendar();
+                        cal.setTimeInMillis(startTime);
+                        int dayOfWeek = cal.get(Calendar.DAY_OF_WEEK);
+                        timeSpentWorkingEachDay[dayOfWeek-1] += durationInMinutes;
+                    } while (cursor.moveToNext());
+                }
+            } catch (Exception e) {
+                Log.d(TAG, "Error while trying to get info from database in getAverageTimeSpentWorkingEachDay()");
+            } finally {
+                if (cursor != null && !cursor.isClosed()) {
+                    cursor.close();
+                }
+            }
+            return timeSpentWorkingEachDay;
 
     }
+
 
     public void DeleteTimer(long startingTime) {
         SQLiteDatabase db = getReadableDatabase();
