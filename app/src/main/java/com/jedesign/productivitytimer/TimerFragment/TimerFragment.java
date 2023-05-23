@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -40,9 +41,8 @@ public class TimerFragment extends Fragment {
         super.onCreate(savedInstanceState);
     }
 
-    Button timerButton, cancelButton, pauseButton, saveButton;
+    Button cancelButton, pauseButton, saveButton;
     TextView timerText;
-    AutoCompleteTextView actvTask, actvLocation;
     LinearLayout ll_pause_and_stop_button;
     long time = 0;
     boolean paused = false;
@@ -57,12 +57,11 @@ public class TimerFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_timer, container, false);
         initializeLayout(v);
         setTimerIfAlreadyStarted(v);
-        setTimerButtonOnClick(); //Start timer and change visibility
         setPauseButtonOnClick();
         setSaveButtonOnClick();
         setCancelButtonOnClick();
-        setTasks();
-        setLocations();
+        //setTasks();
+        //setLocations();
 
         if(getActivity().getIntent().hasExtra(PAUSE_APP)){
             pauseTimer();
@@ -74,28 +73,8 @@ public class TimerFragment extends Fragment {
         return v;
     }
 
-    private void setLocations() {
-        DataHelper dh = new DataHelper(getActivity());
-        List<String> allLocations = dh.getAllLocations();
-        dh.close();
-
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, allLocations);
-        actvLocation.setAdapter(adapter);
-    }
-
-    private void setTasks(){
-        DataHelper dh = new DataHelper(getActivity());
-        List<String> allTasks = dh.getAllTasks();
-        dh.close();
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_1, allTasks);
-        actvTask.setAdapter(adapter);
-    }
-
     private void initializeLayout(View v) {
-        timerButton = v.findViewById(R.id.btnTimer);
         timerText = v.findViewById(R.id.txtTimer);
-        actvLocation = v.findViewById(R.id.actvLocation);
-        actvTask = v.findViewById(R.id.actvTask);
         ll_pause_and_stop_button = v.findViewById(R.id.ll_pause_and_stop_button);
         pauseButton = v.findViewById(R.id.btnPause);
         saveButton = v.findViewById(R.id.btnSave);
@@ -125,8 +104,6 @@ public class TimerFragment extends Fragment {
                 if(!timerRunning) startTimer();
             }
 
-            //Show timer layout instead of create timer layout
-            changeVisibility(v, true);
         }
 
     }
@@ -218,58 +195,11 @@ public class TimerFragment extends Fragment {
         });
     }
 
-
-    private void changeVisibility(View v, boolean timerStarted){
-        int startTimerLayout = v.VISIBLE;
-        int showTimerLayout = v.GONE;
-
-        if(timerStarted){
-            showTimerLayout = v.VISIBLE;
-            startTimerLayout = v.GONE;
-        }
-        timerText.setVisibility(showTimerLayout);
-        timerButton.setVisibility(startTimerLayout);
-        ll_pause_and_stop_button.setVisibility(showTimerLayout);
-
-        actvLocation.setVisibility(startTimerLayout);
-        actvTask.setVisibility(startTimerLayout);
-    }
-
-
     private void resetTimerInfo(View v) {
         paused = true;
         time = 0;
-        changeVisibility(v, false);
     }
 
-    private void setTimerButtonOnClick() {
-        timerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Initialize Timer
-                startTimer();
-                saveTimeStartedToSharedPreferences();
-                saveTaskToSharedPreferences(actvTask.getText().toString());
-                saveLocationToSharedPreferences(actvLocation.getText().toString());
-
-                changeVisibility(v, true);
-            }
-        });
-    }
-
-    private void saveLocationToSharedPreferences(String location) {
-        SharedPreferences calendarPref = getActivity().getPreferences(Context.MODE_PRIVATE );
-        SharedPreferences.Editor editor= calendarPref.edit();
-        editor.putString("Locations", location);
-        editor.commit();
-    }
-
-    private void saveTaskToSharedPreferences(String task) {
-        SharedPreferences calendarPref = getActivity().getPreferences(Context.MODE_PRIVATE );
-        SharedPreferences.Editor editor= calendarPref.edit();
-        editor.putString("Task", task);
-        editor.commit();
-    }
 
     private String getTaskFromPreferences() {
         SharedPreferences pref = getActivity().getPreferences(Context.MODE_PRIVATE);
@@ -287,8 +217,17 @@ public class TimerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 resetData(v);
+                openCreateTimerFragment();
             }
         });
+    }
+
+    private void openCreateTimerFragment() {
+        CreateTimerFragment createTimerFragment = new CreateTimerFragment();
+        getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container_view, createTimerFragment)
+                .addToBackStack(null)
+                .commit();
     }
 
     private void resetData(View v) {
@@ -312,13 +251,6 @@ public class TimerFragment extends Fragment {
         SharedPreferences calendarPref = getActivity().getPreferences(Context.MODE_PRIVATE );
         SharedPreferences.Editor editor= calendarPref.edit();
         editor.putLong("TimerStartTime", -1);
-        editor.commit();
-    }
-
-    private void saveTimeStartedToSharedPreferences() {
-        SharedPreferences calendarPref = getActivity().getPreferences(Context.MODE_PRIVATE );
-        SharedPreferences.Editor editor= calendarPref.edit();
-        editor.putLong("TimerStartTime", Calendar.getInstance().getTimeInMillis());
         editor.commit();
     }
 
@@ -390,6 +322,7 @@ public class TimerFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
+                openCreateTimerFragment();
             }
         });
 
