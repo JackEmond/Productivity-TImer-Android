@@ -3,6 +3,7 @@ package com.example.productivitytimer.ui
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -37,44 +38,43 @@ fun TimerPage(
     ){
         ProductivityTimerText()
         TimerText()
-        Buttons()
+        Buttons{navController.navigate("CreateTimerPage")}
     }
 }
 
 @Composable
-fun Buttons() {
-    //PauseButton()
-    //SaveButton()
-    StopButton()
+private fun Buttons(navigate: () -> Unit) {
+    Row(){
+        TimerButton(text = "Pause", onClick = { /*TODO*/ })
+        TimerButton(text = "Cancel", onClick = navigate)
+        TimerButton(text = "Save", onClick = { /*TODO*/ })
+    }
+
 }
 
 @Composable
-fun StopButton() {
-    Button(
-        modifier = Modifier.padding(10.dp),
-        onClick = { },
-        colors = ButtonDefaults.buttonColors(Color.Black),
-        shape = RectangleShape,
+private fun TimerButton(
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
     ) {
-        Text(text = "Stop",
-            Modifier.padding(5.dp),
-            fontSize = 15.sp)
-    }
-}
-
-@Composable
-fun SaveButton() {
-    TODO("Not yet implemented")
-}
-
-@Composable
-fun PauseButton() {
-    TODO("Not yet implemented")
+        Button(
+            onClick = onClick,
+            modifier = modifier.padding(10.dp),
+            colors = ButtonDefaults.buttonColors(Color.Black),
+            shape = RectangleShape,
+            ) {
+            Text(
+                text = text.uppercase(),
+                Modifier.padding(5.dp),
+                fontSize = 15.sp
+            )
+        }
 }
 
 
 @Composable
-fun ProductivityTimerText() {
+private fun ProductivityTimerText() {
     Text(
         text = "Productivity Timer",
         fontSize = 50.sp,
@@ -83,7 +83,7 @@ fun ProductivityTimerText() {
 }
 
 @Composable
-fun TimerText() {
+private fun TimerText() {
     Text(
         modifier = Modifier
             .fillMaxWidth()
@@ -99,7 +99,7 @@ fun TimerText() {
 
 @Preview(showBackground = true)
 @Composable
-fun TimerPagePreview() {
+private fun TimerPagePreview() {
     ProductivityTimerTheme {
         TimerPage(navController = rememberNavController())
     }
