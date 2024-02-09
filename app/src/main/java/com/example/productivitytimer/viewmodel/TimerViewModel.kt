@@ -1,16 +1,20 @@
 package com.example.productivitytimer.viewmodel
 
-import android.app.Application
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class TimerViewModel(application: Application): AndroidViewModel(application){
+@HiltViewModel
+class TimerViewModel @Inject constructor(
+
+): ViewModel() {
     private val scope = viewModelScope
     private var job: Job? = null
     var time by mutableIntStateOf(0) // Time in seconds

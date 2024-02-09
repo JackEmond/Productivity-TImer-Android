@@ -32,7 +32,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.productivitytimer.ui.CreateTimerPage
 import com.example.productivitytimer.ui.TimerPage
 import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
