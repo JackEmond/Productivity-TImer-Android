@@ -36,8 +36,6 @@ fun CreateTimerPage(navHostController: NavHostController) {
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         CreateProductivityTimerText()
-        TaskCompletingInput()
-        LocationInput()
         SubmitButton{ navHostController.navigate("TimerPage") }
     }
 }
@@ -56,28 +54,6 @@ fun CreateProductivityTimerText(){
     )
 }
 
-@Composable
-fun TaskCompletingInput() {
-    var text by remember { mutableStateOf("") }
-
-    TextField(
-        value = text,
-        onValueChange = {text = it},
-        label = { Text("Task Completing") }
-    )
-}
-
-@Composable
-fun LocationInput() {
-    var text by remember { mutableStateOf("") }
-
-    TextField(
-        modifier = Modifier.padding(top = 10.dp),
-        value = text,
-        onValueChange = {text = it},
-        label = { Text("Location") }
-    )
-}
 
 @Composable
 fun SubmitButton(navigate: () -> Unit) {

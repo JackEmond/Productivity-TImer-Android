@@ -57,7 +57,7 @@ private fun Buttons(
     navController: NavHostController, timerViewModel: TimerViewModel,
 ) {
     Row(){
-        TimerButton(text = "Pause", onClick = { timerViewModel.pauseTimer()})
+        //TimerButton(text = "Pause", onClick = { timerViewModel.pauseTimer()})
 
         TimerButton(
             text = "Cancel",
