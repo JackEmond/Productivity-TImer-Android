@@ -21,21 +21,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
-import com.example.productivitytimer.viewmodel.TimerViewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 
 
 @Composable
 fun TimerPage(
     navController: NavHostController,
-    timerViewModel: TimerViewModel = viewModel()
+    timerVM: ProductivityTimerViewModel = hiltViewModel()
 ){
     //When app starts, start the timer
     LaunchedEffect(key1 = true) {
-        timerViewModel.startTimer()
+        timerVM.startTimer()
     }
 
     Column(
@@ -46,15 +45,15 @@ fun TimerPage(
         verticalArrangement = Arrangement.Center
     ){
         HeaderText()
-        TimerText(timerViewModel.time)
-        Buttons(navController, timerViewModel)
+        TimerText(timerVM.time)
+        Buttons(navController, timerVM)
     }
 }
 
 
 @Composable
 private fun Buttons(
-    navController: NavHostController, timerViewModel: TimerViewModel,
+    navController: NavHostController, timerVM: ProductivityTimerViewModel,
 ) {
     Row(){
         //TimerButton(text = "Pause", onClick = { timerViewModel.pauseTimer()})
@@ -62,12 +61,12 @@ private fun Buttons(
         TimerButton(
             text = "Cancel",
             onClick = {
-                timerViewModel.cancelTimer()
+                timerVM.cancelTimer()
                 navController.navigate("CreateTimerPage")
             }
         )
 
-        TimerButton(text = "Save", onClick = { timerViewModel.saveTimer()})
+        TimerButton(text = "Save", onClick = { timerVM.saveTimer()})
     }
 }
 
