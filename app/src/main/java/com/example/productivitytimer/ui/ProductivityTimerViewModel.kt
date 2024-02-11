@@ -25,14 +25,7 @@ class ProductivityTimerViewModel @Inject constructor(
 
     fun startTimer() {
         startIncrementingTime()
-        addTimerToDatabase()
     }
-
-    private fun addTimerToDatabase()
-            = viewModelScope.launch{
-        repository.insertTime(time)
-    }
-
 
     private fun startIncrementingTime(){
         job = scope.launch {
