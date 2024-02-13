@@ -46,13 +46,13 @@ fun AllTimers(timerVM: ProductivityTimerViewModel) {
         modifier = Modifier.fillMaxSize()
     ){
         items(timerRecords) { timerRecord ->
-            DisplayTimer(timerRecord)
+            DisplayTimer(timerRecord,timerVM)
         }
     }
 }
 
 @Composable
-fun DisplayTimer(timerRecord: TimerRecord) {
+fun DisplayTimer(timerRecord: TimerRecord, timerVM: ProductivityTimerViewModel) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -63,7 +63,7 @@ fun DisplayTimer(timerRecord: TimerRecord) {
                 fontSize = 20.sp, fontWeight = FontWeight.Black)
             Text(text = "JUL-13-2023", fontSize = 12.sp)
         }
-        Button(onClick = { /*TODO*/ }) {
+        Button(onClick = { timerVM.deleteTimer(timerRecord.id) }) {
             Text(text = "Delete")
         }
     }
@@ -93,6 +93,6 @@ private fun AllTimersPagePreview() {
 @Composable
 private fun DisplayTImerPreview() {
     ProductivityTimerTheme {
-        DisplayTimer(TimerRecord(3, 6))
+        //DisplayTimer(TimerRecord(3, 6), timerVM)
     }
 }

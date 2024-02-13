@@ -73,9 +73,9 @@ class ProductivityTimerViewModel @Inject constructor(
         }
     }
 
-
-
-
+    fun deleteTimer(id: Int) = viewModelScope.launch{
+        repository.deleteRecord(id)
+    }
 
 
 }

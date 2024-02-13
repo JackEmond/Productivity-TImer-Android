@@ -13,4 +13,7 @@ interface TimerRecordDao {
 
     @Query("Select * FROM timerrecord")
     fun getAllTimers(): LiveData<List<TimerRecord>>
+
+    @Query("DELETE FROM timerrecord WHERE id = :id")
+    suspend fun deleteById(id: Int)
 }

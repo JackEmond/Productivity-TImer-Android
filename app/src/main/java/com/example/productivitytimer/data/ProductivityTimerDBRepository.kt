@@ -21,5 +21,9 @@ class ProductivityTimerDBRepository @Inject constructor(
 
     fun getAllTimers(): LiveData<List<TimerRecord>> = localDataSource.getAllTimers()
 
+    suspend fun deleteRecord(id: Int) {
+        localDataSource.deleteById(id)
+    }
+
 
 }
