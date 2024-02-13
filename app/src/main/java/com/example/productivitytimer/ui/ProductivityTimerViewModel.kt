@@ -3,7 +3,9 @@ package com.example.productivitytimer.ui
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.setValue
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.example.productivitytimer.data.ProductivityTimerDBRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,6 +13,12 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+data class TimerRecord(
+    val id: Int,
+    val time: Int,
+)
+
 
 @HiltViewModel
 class ProductivityTimerViewModel @Inject constructor(
@@ -53,6 +61,17 @@ class ProductivityTimerViewModel @Inject constructor(
     }
 
 
+
+    fun getAllTimers(): LiveData<List<TimerRecord>> {
+        return repository.getAllTimers().map { list ->
+            list.map { timerRecord ->
+                TimerRecord(
+                    id = timerRecord.id,
+                    time = timerRecord.time,
+                )
+            }
+        }
+    }
 
 
 

@@ -66,7 +66,13 @@ private fun Buttons(
             }
         )
 
-        TimerButton(text = "Save", onClick = { timerVM.saveTimer()})
+        TimerButton(
+            text = "Save",
+            onClick = {
+                timerVM.saveTimer()
+                navController.navigate("CreateTimerPage")
+            }
+        )
     }
 }
 

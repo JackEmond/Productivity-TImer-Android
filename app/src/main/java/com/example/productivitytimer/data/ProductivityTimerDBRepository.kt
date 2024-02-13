@@ -1,6 +1,7 @@
 package com.example.productivitytimer.data
 
 import android.util.Log
+import androidx.lifecycle.LiveData
 import com.example.productivitytimer.data.local.TimerRecord
 import com.example.productivitytimer.data.local.TimerRecordDao
 import javax.inject.Inject
@@ -17,6 +18,8 @@ class ProductivityTimerDBRepository @Inject constructor(
         val timer = TimerRecord(time = time)
         localDataSource.insertTimer(timer)
     }
+
+    fun getAllTimers(): LiveData<List<TimerRecord>> = localDataSource.getAllTimers()
 
 
 }
