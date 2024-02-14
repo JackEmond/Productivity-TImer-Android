@@ -45,11 +45,12 @@ class ProductivityTimerViewModel @Inject constructor(
 
 
     fun pauseTimer(){
-        job?.cancel()
+        cancelTimer()
     }
 
     fun saveTimer() = viewModelScope.launch{
         repository.insertTime(time.value)
+        cancelTimer()
     }
 
     fun cancelTimer() {
