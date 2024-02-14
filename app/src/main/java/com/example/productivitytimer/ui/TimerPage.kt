@@ -13,6 +13,8 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -21,17 +23,16 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
-import androidx.hilt.navigation.compose.hiltViewModel
 
 
 @Composable
 fun TimerPage(
-    navController: NavHostController,
-    timerVM: ProductivityTimerViewModel = hiltViewModel()
+    navigateToStatsPage: () -> Unit,
+    navigateToCreateTimerPage: () -> Unit,
+    timerVM: ProductivityTimerViewModel
 ){
+
     //When app starts, start the timer
     LaunchedEffect(key1 = true) {
         timerVM.startTimer()
@@ -45,15 +46,19 @@ fun TimerPage(
         verticalArrangement = Arrangement.Center
     ){
         HeaderText()
-        TimerText(timerVM.time)
-        Buttons(navController, timerVM)
+
+        //Log.w("Jack", timerVM.time.collectAsState().value.toString() + "increement")
+        TimerText(timerVM.time.collectAsState())
+        Buttons(navigateToStatsPage, navigateToCreateTimerPage, timerVM)
     }
 }
 
 
 @Composable
 private fun Buttons(
-    navController: NavHostController, timerVM: ProductivityTimerViewModel,
+    navigateToStatsPage: () -> Unit,
+    navigateToCreateTimerPage: () -> Unit,
+    timerVM: ProductivityTimerViewModel,
 ) {
     Row(){
         //TimerButton(text = "Pause", onClick = { timerViewModel.pauseTimer()})
@@ -62,7 +67,7 @@ private fun Buttons(
             text = "Cancel",
             onClick = {
                 timerVM.cancelTimer()
-                navController.navigate("CreateTimerPage")
+                navigateToCreateTimerPage()
             }
         )
 
@@ -70,7 +75,7 @@ private fun Buttons(
             text = "Save",
             onClick = {
                 timerVM.saveTimer()
-                navController.navigate("CreateTimerPage")
+                navigateToStatsPage()
             }
         )
     }
@@ -107,7 +112,7 @@ private fun HeaderText() {
 }
 
 @Composable
-private fun TimerText(time: Int) {
+private fun TimerText(time: State<Int>) {
     val formattedTime = formatTime(time)
 
     Text(
@@ -123,10 +128,11 @@ private fun TimerText(time: Int) {
     )
 }
 
-fun formatTime(time: Int): String {
-    val hours = time / 3600
-    val minutes = (time % 3600) / 60
-    val seconds = time % 60
+fun formatTime(time: State<Int>): String {
+
+    val hours = time.value / 3600
+    val minutes = (time.value % 3600) / 60
+    val seconds = time.value % 60
 
     return String.format("%02dHRS %02dMIN %02dSEC", hours, minutes, seconds)
 }
@@ -135,6 +141,6 @@ fun formatTime(time: Int): String {
 @Composable
 private fun TimerPagePreview() {
     ProductivityTimerTheme {
-        TimerPage(navController = rememberNavController())
+        //TimerPage(navController = rememberNavController())
     }
 }

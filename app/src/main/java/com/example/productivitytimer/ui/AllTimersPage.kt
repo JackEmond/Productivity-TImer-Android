@@ -21,13 +21,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
 
 @Composable
 fun AllTimersPage(
-    navHostController: NavHostController,
     timerVM: ProductivityTimerViewModel = hiltViewModel()
 ){
     Column (
@@ -86,7 +83,7 @@ fun AllTimersText() {
 @Composable
 private fun AllTimersPagePreview() {
     ProductivityTimerTheme {
-        AllTimersPage(navHostController = rememberNavController())
+        AllTimersPage()
     }
 }
 @Preview(apiLevel = 33, showBackground = true)

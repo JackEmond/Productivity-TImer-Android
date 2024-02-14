@@ -1,8 +1,5 @@
 package com.example.productivitytimer.ui
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
@@ -11,6 +8,8 @@ import com.example.productivitytimer.data.ProductivityTimerDBRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,19 +26,18 @@ class ProductivityTimerViewModel @Inject constructor(
 ): ViewModel() {
     private val scope = viewModelScope
     private var job: Job? = null
-    var time by mutableIntStateOf(0) // Time in seconds
-    private var isActive = false
+    private val _time = MutableStateFlow(0) // Time in seconds
+    val time: StateFlow<Int> = _time
 
 
     fun startTimer() {
-        startIncrementingTime()
+        if(_time.value == 0) startIncrementingTime()
     }
 
     private fun startIncrementingTime(){
         job = scope.launch {
-            isActive = true
-            while (isActive) {
-                time++
+            while (true) {
+                _time.value += 1
                 delay(1000L) // Wait for a second
             }
         }
@@ -51,13 +49,12 @@ class ProductivityTimerViewModel @Inject constructor(
     }
 
     fun saveTimer() = viewModelScope.launch{
-        repository.insertTime(time)
+        repository.insertTime(time.value)
     }
 
     fun cancelTimer() {
-        //Timer.cancel();
         job?.cancel()
-        //stopTimerService()
+        _time.value = 0
     }
 
 

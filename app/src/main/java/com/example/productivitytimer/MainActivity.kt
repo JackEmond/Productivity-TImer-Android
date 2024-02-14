@@ -16,12 +16,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.productivitytimer.ui.AllTimersPage
 import com.example.productivitytimer.ui.CreateTimerPage
+import com.example.productivitytimer.ui.ProductivityTimerViewModel
 import com.example.productivitytimer.ui.TimerPage
 import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,6 +33,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
+            val timerViewModel: ProductivityTimerViewModel = hiltViewModel()
             val navController = rememberNavController()
             ProductivityTimerTheme {
                 Scaffold(
@@ -38,7 +41,7 @@ class MainActivity : ComponentActivity() {
                         BottomNavBar(navController)
                     }
                 ) {
-                    MyNavController(navController = navController)
+                    MyNavController(navController = navController, timerVM = timerViewModel)
                 }
             }
         }
@@ -47,11 +50,14 @@ class MainActivity : ComponentActivity() {
 
 
 @Composable
-fun MyNavController(navController: NavHostController) {
+fun MyNavController(navController: NavHostController, timerVM: ProductivityTimerViewModel) {
     NavHost(navController = navController, startDestination = "CreateTimerPage") {
-        composable("CreateTimerPage") { CreateTimerPage(navController) }
-        composable("TimerPage") { TimerPage(navController) }
-        composable("AllTimersPage") { AllTimersPage(navController) }
+        composable("CreateTimerPage") {
+            CreateTimerPage( navigateToTimerPage = {navController.navigate("TimerPage")}, timerVM) }
+        composable("TimerPage") {
+            TimerPage(navigateToStatsPage = {navController.navigate("AllTimersPage")}, navigateToCreateTimerPage = {navController.navigate("CreateTimerPage")}, timerVM) }
+        composable("AllTimersPage") {
+            AllTimersPage() }
 
     }
 }
