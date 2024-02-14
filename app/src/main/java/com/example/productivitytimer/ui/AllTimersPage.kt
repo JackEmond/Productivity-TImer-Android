@@ -3,7 +3,6 @@ package com.example.productivitytimer.ui
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,6 +15,7 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -43,9 +43,7 @@ fun AllTimersPage(
 @Composable
 fun AllTimers(timerVM: ProductivityTimerViewModel) {
     val timerRecords by timerVM.getAllTimers().observeAsState(initial = emptyList())
-    LazyColumn(
-        modifier = Modifier.fillMaxSize()
-    ){
+    LazyColumn{
         items(timerRecords) { timerRecord ->
             DisplayTimer(timerRecord,timerVM)
         }
@@ -56,19 +54,45 @@ fun AllTimers(timerVM: ProductivityTimerViewModel) {
 fun DisplayTimer(timerRecord: TimerRecord, timerVM: ProductivityTimerViewModel) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceEvenly,
-        modifier = Modifier.fillMaxWidth()
+        horizontalArrangement = Arrangement.SpaceBetween,
+        modifier = Modifier.fillMaxWidth(.7f).padding(6.dp)
     ){
         Column{
-            Text(text = timerRecord.time.toString() + " sec",
-                fontSize = 20.sp, fontWeight = FontWeight.Black)
-            Text(text = getFormattedDate(timerRecord.date), fontSize = 12.sp)
+            Text(
+                text = getFormattedTime(timerRecord.time),
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Black)
+
+            Text(
+                text = getFormattedDate(timerRecord.date),
+                fontSize = 12.sp
+            )
         }
-        Button(onClick = { timerVM.deleteTimer(timerRecord.id) }) {
+        Button(
+            onClick = { timerVM.deleteTimer(timerRecord.id) },
+            shape = RectangleShape
+        ) {
             Text(text = "Delete")
         }
     }
 }
+
+@Composable
+fun getFormattedTime(time: Int): String {
+    return remember(time){
+        val hours = time / 3600
+        val minutes = (time % 3600) / 60
+        val seconds = time % 60
+
+        when {
+            hours > 0 -> String.format("%02d HRS %02d MIN %02d SEC", hours, minutes, seconds)
+            minutes > 0 -> String.format("%02d MIN %02d SEC", minutes, seconds)
+            else -> String.format("%02d SEC", seconds)
+        }
+    }
+
+}
+
 
 @Composable
 fun getFormattedDate(date: Long): String {
