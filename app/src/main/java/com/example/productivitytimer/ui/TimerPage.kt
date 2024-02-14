@@ -74,8 +74,8 @@ private fun Buttons(
         TimerButton(
             text = "Save",
             onClick = {
-                timerVM.saveTimer()
                 navigateToStatsPage()
+                timerVM.saveTimer()
             }
         )
     }
