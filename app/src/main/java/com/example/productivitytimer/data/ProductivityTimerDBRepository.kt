@@ -15,7 +15,10 @@ class ProductivityTimerDBRepository @Inject constructor(
     suspend fun insertTime(time: Int) {
         Log.w("Jack test", "time: $time")
 
-        val timer = TimerRecord(time = time)
+        val timer = TimerRecord(
+            time = time,
+            date= System.currentTimeMillis()
+        )
         localDataSource.insertTimer(timer)
     }
 

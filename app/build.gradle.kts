@@ -16,6 +16,13 @@ android {
         versionCode = 1
         versionName = "1.0"
 
+        // Room schema location
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments["room.schemaLocation"] = file("$projectDir/schemas").absolutePath
+            }
+        }
+
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
             useSupportLibrary = true
