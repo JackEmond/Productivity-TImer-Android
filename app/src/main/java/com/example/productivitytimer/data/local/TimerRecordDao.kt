@@ -11,7 +11,7 @@ interface TimerRecordDao {
     @Insert
     suspend fun insertTimer(timer: TimerRecord)
 
-    @Query("Select * FROM timerrecord")
+    @Query("Select * FROM timerrecord ORDER BY DATE DESC")
     fun getAllTimers(): LiveData<List<TimerRecord>>
 
     @Query("DELETE FROM timerrecord WHERE id = :id")

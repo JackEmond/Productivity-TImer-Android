@@ -16,6 +16,7 @@ import javax.inject.Inject
 data class TimerRecord(
     val id: Int,
     val time: Int,
+    val date:Long
 )
 
 
@@ -44,9 +45,11 @@ class ProductivityTimerViewModel @Inject constructor(
     }
 
 
+    /*
     fun pauseTimer(){
         cancelTimer()
     }
+     */
 
     fun saveTimer() = viewModelScope.launch{
         repository.insertTime(time.value)
@@ -66,6 +69,7 @@ class ProductivityTimerViewModel @Inject constructor(
                 TimerRecord(
                     id = timerRecord.id,
                     time = timerRecord.time,
+                    date = timerRecord.date
                 )
             }
         }

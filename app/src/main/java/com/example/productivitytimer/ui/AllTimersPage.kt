@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -22,6 +23,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun AllTimersPage(
@@ -58,11 +62,19 @@ fun DisplayTimer(timerRecord: TimerRecord, timerVM: ProductivityTimerViewModel) 
         Column{
             Text(text = timerRecord.time.toString() + " sec",
                 fontSize = 20.sp, fontWeight = FontWeight.Black)
-            Text(text = "JUL-13-2023", fontSize = 12.sp)
+            Text(text = getFormattedDate(timerRecord.date), fontSize = 12.sp)
         }
         Button(onClick = { timerVM.deleteTimer(timerRecord.id) }) {
             Text(text = "Delete")
         }
+    }
+}
+
+@Composable
+fun getFormattedDate(date: Long): String {
+    return remember(date) {
+        val formatter = SimpleDateFormat("MM-dd-yyyy", Locale.getDefault())
+        formatter.format(Date(date)).toString()
     }
 }
 
