@@ -58,8 +58,9 @@ class ProductivityTimerViewModel @Inject constructor(
 
     private fun pauseTimer(){
         _timerPaused.value = true
-        cancelTimer()
+        job?.cancel()
     }
+
 
     private fun resumeTimer(){
         _timerPaused.value = false
@@ -72,7 +73,7 @@ class ProductivityTimerViewModel @Inject constructor(
     }
 
     fun cancelTimer() {
-        job?.cancel()
+        resetTimer()
     }
 
     private fun resetTimer(){
