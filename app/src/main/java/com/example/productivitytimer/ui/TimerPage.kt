@@ -15,6 +15,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,8 +62,15 @@ private fun Buttons(
     navigateToCreateTimerPage: () -> Unit,
     timerVM: ProductivityTimerViewModel,
 ) {
+    val isPaused by timerVM.timerPaused.observeAsState(false)
+
     Row(){
-        //TimerButton(text = "Pause", onClick = { timerViewModel.pauseTimer()})
+        TimerButton(
+            text = if (isPaused) "Resume" else "Pause",
+            onClick = {
+                timerVM.pauseTimerButtonClicked()
+            }
+        )
 
         TimerButton(
             text = "Cancel",

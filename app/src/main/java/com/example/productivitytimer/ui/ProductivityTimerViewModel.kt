@@ -1,6 +1,7 @@
 package com.example.productivitytimer.ui
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
@@ -27,6 +28,7 @@ class ProductivityTimerViewModel @Inject constructor(
 ): ViewModel() {
     private val scope = viewModelScope
     private var job: Job? = null
+
     private val _time = MutableStateFlow(0) // Time in seconds
     val time: StateFlow<Int> = _time
 
@@ -44,23 +46,40 @@ class ProductivityTimerViewModel @Inject constructor(
         }
     }
 
+    private val _timerPaused = MutableLiveData(false)
+    val timerPaused: LiveData<Boolean> = _timerPaused
 
-    /*
-    fun pauseTimer(){
+    fun pauseTimerButtonClicked() {
+        if(_timerPaused.value == true)
+            resumeTimer()
+        else
+            pauseTimer()
+    }
+
+    private fun pauseTimer(){
+        _timerPaused.value = true
         cancelTimer()
     }
-     */
+
+    private fun resumeTimer(){
+        _timerPaused.value = false
+        startIncrementingTime()
+    }
 
     fun saveTimer() = viewModelScope.launch{
         repository.insertTime(time.value)
-        cancelTimer()
+        resetTimer()
     }
 
     fun cancelTimer() {
         job?.cancel()
-        _time.value = 0
     }
 
+    private fun resetTimer(){
+        _time.value = 0
+        job?.cancel()
+        _timerPaused.value = false
+    }
 
 
     fun getAllTimers(): LiveData<List<TimerRecord>> {
@@ -78,6 +97,7 @@ class ProductivityTimerViewModel @Inject constructor(
     fun deleteTimer(id: Int) = viewModelScope.launch{
         repository.deleteRecord(id)
     }
+
 
 
 }
