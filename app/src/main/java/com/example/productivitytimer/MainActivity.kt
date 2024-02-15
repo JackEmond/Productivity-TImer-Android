@@ -23,6 +23,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.productivitytimer.ui.AllTimersPage
 import com.example.productivitytimer.ui.CreateTimerPage
+import com.example.productivitytimer.ui.InfoPage
 import com.example.productivitytimer.ui.ProductivityTimerViewModel
 import com.example.productivitytimer.ui.TimerPage
 import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
@@ -56,8 +57,9 @@ fun MyNavController(navController: NavHostController, timerVM: ProductivityTimer
             CreateTimerPage( navigateToTimerPage = {navController.navigate("TimerPage")}, timerVM) }
         composable("TimerPage") {
             TimerPage(navigateToStatsPage = {navController.navigate("AllTimersPage")}, navigateToCreateTimerPage = {navController.navigate("CreateTimerPage")}, timerVM) }
-        composable("AllTimersPage") {
-            AllTimersPage() }
+        composable("AllTimersPage") { AllTimersPage() }
+        composable("InfoPage") { InfoPage() }
+
 
     }
 }
@@ -83,7 +85,7 @@ fun BottomNavBar(navController: NavHostController) {
         ),
         BottomNavItem(
             title = "Info",
-            navigation ="CreateTimerPage",
+            navigation ="InfoPage",
             icon = painterResource(id = R.drawable.info)
         )
     )
