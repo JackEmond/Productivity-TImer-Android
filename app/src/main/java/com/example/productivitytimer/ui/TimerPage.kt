@@ -68,7 +68,7 @@ private fun Buttons(
         TimerButton(
             text = if (isPaused) "Resume" else "Pause",
             onClick = {
-                timerVM.pauseTimerButtonClicked()
+                timerVM.pauseOrResumeTimer()
             }
         )
 
