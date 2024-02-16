@@ -26,62 +26,27 @@ class ProductivityTimerViewModel @Inject constructor(
     private val repository: ProductivityTimerDBRepository
 
 ): ViewModel() {
-    private val scope = viewModelScope
-    private var job: Job? = null
+    private val timer = ProductivityTimer(scope = viewModelScope)
 
-    private val _time = MutableStateFlow(0) // Time in seconds
-    val time: StateFlow<Int> = _time
-
+    val time = timer.time
+    val timerPaused = timer.timerPaused
 
     fun startTimer() {
-        if(_time.value == 0) startIncrementingTime()
+        timer.start()
     }
-
-    private fun startIncrementingTime(){
-        job = scope.launch {
-            while (true) {
-                _time.value += 1
-                delay(1000L) // Wait for a second
-            }
-        }
-    }
-
-    private val _timerPaused = MutableLiveData(false)
-    val timerPaused: LiveData<Boolean> = _timerPaused
 
     fun pauseTimerButtonClicked() {
-        if(_timerPaused.value == true)
-            resumeTimer()
-        else
-            pauseTimer()
-    }
-
-    private fun pauseTimer(){
-        _timerPaused.value = true
-        job?.cancel()
-    }
-
-
-    private fun resumeTimer(){
-        _timerPaused.value = false
-        startIncrementingTime()
+        timer.pauseOrResume()
     }
 
     fun saveTimer() = viewModelScope.launch{
         repository.insertTime(time.value)
-        resetTimer()
+        timer.resetTimer()
     }
 
-    fun cancelTimer() {
-        resetTimer()
+    fun cancelTimer(){
+        timer.resetTimer()
     }
-
-    private fun resetTimer(){
-        _time.value = 0
-        job?.cancel()
-        _timerPaused.value = false
-    }
-
 
     fun getAllTimers(): LiveData<List<TimerRecord>> {
         return repository.getAllTimers().map { list ->
