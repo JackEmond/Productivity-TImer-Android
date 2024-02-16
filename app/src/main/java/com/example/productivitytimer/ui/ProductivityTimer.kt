@@ -1,26 +1,26 @@
 package com.example.productivitytimer.ui
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class ProductivityTimer(private val scope: CoroutineScope) {
+class ProductivityTimer(
+    private val scope: CoroutineScope,
+    private val _time: MutableStateFlow<Int>,
+    private val _timerPaused: MutableLiveData<Boolean>
+) {
     private var job: Job? = null
 
-    private val _time = MutableStateFlow(0) // Time in seconds
-    val time: StateFlow<Int> = _time
-
-    private val _timerPaused = MutableLiveData(false)
-    val timerPaused: LiveData<Boolean> = _timerPaused
-
-
     fun start() {
-        if(_time.value == 0) startIncrementingTime()
+        if (job?.isActive == null)
+            startIncrementingTime()
+    }
+
+    private fun timerIsPaused(): Boolean{
+        return _timerPaused.value == true
     }
 
     private fun startIncrementingTime() {
@@ -28,12 +28,13 @@ class ProductivityTimer(private val scope: CoroutineScope) {
             while (true) {
                 _time.value += 1
                 delay(1000L) // Wait for a second
+
             }
         }
     }
 
     fun pauseOrResume() {
-        if(_timerPaused.value == true)
+        if(timerIsPaused())
             resumeTimer()
         else
             pauseTimer()

@@ -1,11 +1,14 @@
 package com.example.productivitytimer.ui
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.example.productivitytimer.data.ProductivityTimerDBRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,10 +24,15 @@ class ProductivityTimerViewModel @Inject constructor(
     private val repository: ProductivityTimerDBRepository
 
 ): ViewModel() {
-    private val timer = ProductivityTimer(scope = viewModelScope)
 
-    val time = timer.time
-    val timerPaused = timer.timerPaused
+    private val _time = MutableStateFlow(0) // Time in seconds
+    val time: StateFlow<Int> = _time
+
+    private val _timerPaused = MutableLiveData(false)
+    val timerPaused: LiveData<Boolean> = _timerPaused
+
+    private val timer = ProductivityTimer(scope = viewModelScope, _time = _time, _timerPaused = _timerPaused)
+
 
     fun startTimer() {
         timer.start()
