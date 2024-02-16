@@ -1,4 +1,4 @@
-package com.example.productivitytimer.ui.pages
+package com.example.productivitytimer.ui.views
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement

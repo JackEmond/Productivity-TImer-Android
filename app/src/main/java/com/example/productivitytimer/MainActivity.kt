@@ -21,11 +21,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.productivitytimer.ui.pages.AllTimersPage
-import com.example.productivitytimer.ui.pages.CreateTimerPage
-import com.example.productivitytimer.ui.pages.InfoPage
+import com.example.productivitytimer.ui.views.AllTimersPage
+import com.example.productivitytimer.ui.views.CreateTimerPage
+import com.example.productivitytimer.ui.views.InfoPage
 import com.example.productivitytimer.ui.ProductivityTimerViewModel
-import com.example.productivitytimer.ui.pages.TimerPage
+import com.example.productivitytimer.ui.views.TimerPage
 import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
