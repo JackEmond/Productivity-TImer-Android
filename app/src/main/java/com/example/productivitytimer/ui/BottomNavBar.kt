@@ -3,6 +3,7 @@ package com.example.productivitytimer.ui
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -12,9 +13,45 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.productivitytimer.R
+import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
 
+
+@Composable
+fun BottomNavBar(navController: NavHostController) {
+    val items = getItems()
+    var selectedItemIndex by rememberSaveable { mutableStateOf(1) }
+
+    NavigationBar(
+    ) {
+        items.forEachIndexed { index, item ->
+            NavigationBarItem(
+                colors = NavigationBarItemDefaults.colors(indicatorColor = Color.White),
+                selected = selectedItemIndex == index,
+                onClick = {
+                    selectedItemIndex = index
+                    navController.navigate(item.navigation)
+                },
+                label = {
+                    Text(
+                        text = item.title,
+                        color = if(index == selectedItemIndex) Color.Black else Color.Gray,
+                    )
+                },
+                icon = {
+                    Icon(
+                        item.icon,
+                        contentDescription = item.title,
+                        tint = if(index == selectedItemIndex) Color.Black  else Color.Gray,
+                    )
+                }
+            )
+        }
+    }
+}
 
 data class BottomNavItem(
     val title: String,
@@ -23,8 +60,8 @@ data class BottomNavItem(
 )
 
 @Composable
-fun BottomNavBar(navController: NavHostController) {
-    val items = listOf(
+fun getItems(): List<BottomNavItem> {
+    return listOf(
         BottomNavItem(
             title = "Stats",
             navigation = "AllTimersPage",
@@ -41,28 +78,12 @@ fun BottomNavBar(navController: NavHostController) {
             icon = painterResource(id = R.drawable.info)
         )
     )
-    var selectedItemIndex by rememberSaveable { mutableStateOf(1) }
+}
 
-    NavigationBar {
-        items.forEachIndexed { index, item ->
-            NavigationBarItem(
-                selected = selectedItemIndex == index,
-                onClick = {
-                    selectedItemIndex = index
-                    navController.navigate(item.navigation)
-                },
-                label = {
-                    Text(text = item.title)
-                },
-                icon = {
-                    Icon(
-                        item.icon,
-                        contentDescription = item.title,
-                        tint = if(index == selectedItemIndex) Color.Black  else Color.Gray
-
-                    )
-                }
-            )
-        }
+@Preview(apiLevel = 33, showBackground = true)
+@Composable
+private fun BottomNavBarPreview() {
+    ProductivityTimerTheme {
+        BottomNavBar(navController = rememberNavController())
     }
 }
