@@ -1,4 +1,4 @@
-package com.example.productivitytimer.ui
+package com.example.productivitytimer.ui.pages
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

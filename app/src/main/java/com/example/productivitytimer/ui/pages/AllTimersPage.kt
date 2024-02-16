@@ -1,4 +1,4 @@
-package com.example.productivitytimer.ui
+package com.example.productivitytimer.ui.pages
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,6 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.productivitytimer.ui.ProductivityTimerViewModel
+import com.example.productivitytimer.ui.TimerRecord
 import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
 import java.text.SimpleDateFormat
 import java.util.Date
