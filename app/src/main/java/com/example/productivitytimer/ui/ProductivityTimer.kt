@@ -15,7 +15,7 @@ class ProductivityTimer(
     private var job: Job? = null
 
     fun start() {
-        if (job?.isActive == null)
+        if (job?.isActive != true)
             startIncrementingTime()
     }
 
