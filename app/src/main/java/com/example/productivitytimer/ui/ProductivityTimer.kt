@@ -1,22 +1,33 @@
 package com.example.productivitytimer.ui
 
 import androidx.lifecycle.MutableLiveData
+import com.example.productivitytimer.data.RunningTimerRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ProductivityTimer(
+class ProductivityTimer @Inject constructor(
     private val scope: CoroutineScope,
     private val _time: MutableStateFlow<Int>,
-    private val _timerPaused: MutableLiveData<Boolean>
+    private val _timerPaused: MutableLiveData<Boolean>,
+    private val repository: RunningTimerRepository
 ) {
     private var job: Job? = null
 
+
     fun start() {
+        determineTimerStatus()
+
         if (job?.isActive != true)
             startIncrementingTime()
+    }
+
+    private fun determineTimerStatus() = scope.launch{
+        val data = repository.fetchData()
+        _time.value = data.elapsedTime
     }
 
     private fun timerIsPaused(): Boolean{
@@ -38,12 +49,17 @@ class ProductivityTimer(
             resumeTimer()
         else
             pauseTimer()
+
     }
 
 
     private fun pauseTimer(){
         _timerPaused.value = true
+        scope.launch{
+            repository.updateElapsedTime(_time.value)
+        }
         job?.cancel()
+
     }
 
     private fun resumeTimer() {
