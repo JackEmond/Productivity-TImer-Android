@@ -1,6 +1,5 @@
 package com.example.productivitytimer.ui.views
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -10,7 +9,6 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,12 +27,7 @@ fun CreateTimerPage(
     navigateToTimerPage: () -> Unit,
     timerVM: ProductivityTimerViewModel
 ) {
-    val timerVariable = timerVM.time.collectAsState()
-    LaunchedEffect(timerVariable) {
-        Log.w("Jack", timerVariable.value.toString())
-        if(timerVariable.value > 0)
-            navigateToTimerPage()
-    }
+    NavigatedToTimerIfRunning(timerVM = timerVM, navigateToTimerPage = navigateToTimerPage)
 
     Column(
         modifier = Modifier
@@ -43,10 +36,24 @@ fun CreateTimerPage(
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         CreateProductivityTimerText()
-        SubmitButton{ navigateToTimerPage()}
+        SubmitButton{
+            navigateToTimerPage()
+            timerVM.startTimerInitial()
+        }
     }
 }
 
+@Composable
+fun NavigatedToTimerIfRunning(
+    timerVM: ProductivityTimerViewModel,
+    navigateToTimerPage: () -> Unit
+) {
+    LaunchedEffect(Unit) {
+        if (timerVM.isTimerStarted()) {
+            navigateToTimerPage()
+        }
+    }
+}
 
 
 @Composable
@@ -63,11 +70,10 @@ fun CreateProductivityTimerText(){
 
 
 @Composable
-fun SubmitButton(navigate: () -> Unit) {
+fun SubmitButton(onclick: () -> Unit) {
     Button(
-        onClick = navigate,
+        onClick = onclick,
         Modifier.padding(top = 20.dp),
-
         colors = ButtonDefaults.buttonColors(Color.Black),
         shape = RectangleShape,
     ) {

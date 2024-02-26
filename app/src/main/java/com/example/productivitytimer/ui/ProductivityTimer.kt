@@ -1,28 +1,54 @@
 package com.example.productivitytimer.ui
 
 import androidx.lifecycle.MutableLiveData
+import com.example.productivitytimer.data.RunningTimerRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class ProductivityTimer(
+class ProductivityTimer @Inject constructor(
     private val scope: CoroutineScope,
     private val _time: MutableStateFlow<Int>,
-    private val _timerPaused: MutableLiveData<Boolean>
+    private val _timerPaused: MutableLiveData<Boolean>,
+    private val repository: RunningTimerRepository
 ) {
     private var job: Job? = null
 
+    fun initialStart() {
+        scope.launch {
+            repository.resumeTimer()
+        }
+    }
+
+
     fun start() {
-        if (job?.isActive != true)
-            startIncrementingTime()
+        getValues()
+    }
+
+    private fun getValues() {
+        scope.launch {
+            val liveData = repository.getTimerData()
+            _time.value = liveData.time
+            _timerPaused.value = liveData.isPaused
+
+            if (!timerIsPaused() && job?.isActive != true) {
+                startIncrementingTime()
+            }
+        }
+    }
+
+    fun hasStarted(): Boolean{
+        return (_time.value != 0)
     }
 
     private fun timerIsPaused(): Boolean{
         return _timerPaused.value == true
     }
 
+    ///This should be changed to a flow
     private fun startIncrementingTime() {
         job = scope.launch {
             while (true) {
@@ -38,23 +64,36 @@ class ProductivityTimer(
             resumeTimer()
         else
             pauseTimer()
+
     }
 
 
     private fun pauseTimer(){
         _timerPaused.value = true
         job?.cancel()
+
+        scope.launch {
+            repository.timerPaused(_time.value)
+        }
     }
 
     private fun resumeTimer() {
         _timerPaused.value = false
         startIncrementingTime()
+
+        scope.launch {
+            repository.resumeTimer()
+        }
     }
 
     fun resetTimer(){
         _time.value = 0
         job?.cancel()
-        _timerPaused.value = false
+        _timerPaused.value = true
+
+        scope.launch {
+            repository.resetTimer()
+        }
     }
 
 

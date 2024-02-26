@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.example.productivitytimer.data.ProductivityTimerDBRepository
+import com.example.productivitytimer.data.RunningTimerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,21 +22,23 @@ data class TimerRecord(
 
 @HiltViewModel
 class ProductivityTimerViewModel @Inject constructor(
-    private val repository: ProductivityTimerDBRepository
-
+    private val repository: ProductivityTimerDBRepository,
+    runningTimerRepository: RunningTimerRepository
 ): ViewModel() {
-
-    private val _time = MutableStateFlow(0) // Time in seconds
+    private val _time = MutableStateFlow(-1) // Time in seconds
     val time: StateFlow<Int> = _time
 
     private val _timerPaused = MutableLiveData(false)
     val timerPaused: LiveData<Boolean> = _timerPaused
+    private val timer = ProductivityTimer(scope = viewModelScope, _time = _time, _timerPaused = _timerPaused, repository = runningTimerRepository)
 
-    private val timer = ProductivityTimer(scope = viewModelScope, _time = _time, _timerPaused = _timerPaused)
 
-
-    fun startTimer() {
+    fun startTimer(){
         timer.start()
+    }
+
+    fun isTimerStarted(): Boolean{
+        return timer.hasStarted()
     }
 
     fun pauseOrResumeTimer() {
@@ -67,6 +70,9 @@ class ProductivityTimerViewModel @Inject constructor(
         repository.deleteRecord(id)
     }
 
+    fun startTimerInitial() {
+        timer.initialStart()
+    }
 
 
 }
