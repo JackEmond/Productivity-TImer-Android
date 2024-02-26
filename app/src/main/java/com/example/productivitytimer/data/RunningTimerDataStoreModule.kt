@@ -20,6 +20,7 @@ import javax.inject.Singleton
 
 private const val RUNNING_TIMER = "running_timer"
 
+
 @InstallIn(SingletonComponent::class)
 @Module
 object RunningTimerDataStoreModule {

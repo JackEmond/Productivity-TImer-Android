@@ -1,5 +1,6 @@
 package com.example.productivitytimer.ui.views
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -37,7 +38,8 @@ fun TimerPage(
 ){
 
     //When app starts, start the timer
-    LaunchedEffect(key1 = true) {
+    LaunchedEffect(Unit) {
+        Log.w("TimerPage.kt", "launch effect hit")
         timerVM.startTimer()
     }
 
@@ -50,7 +52,6 @@ fun TimerPage(
     ){
         HeaderText()
 
-        //Log.w("Jack", timerVM.time.collectAsState().value.toString() + "increement")
         TimerText(timerVM.time.collectAsState())
         Buttons(navigateToStatsPage, navigateToCreateTimerPage, timerVM)
     }
@@ -65,7 +66,7 @@ private fun Buttons(
 ) {
     val isPaused by timerVM.timerPaused.observeAsState(false)
 
-    Row(){
+    Row{
         TimerButton(
             text = if (isPaused) "Resume" else "Pause",
             onClick = {

@@ -17,23 +17,38 @@ class ProductivityTimer @Inject constructor(
 ) {
     private var job: Job? = null
 
-
-    fun start() {
-        determineTimerStatus()
-
-        if (job?.isActive != true)
-            startIncrementingTime()
+    fun initialStart() {
+        scope.launch {
+            repository.resumeTimer()
+        }
     }
 
-    private fun determineTimerStatus() = scope.launch{
-        val data = repository.fetchData()
-        _time.value = data.elapsedTime
+
+    fun start() {
+        getValues()
+    }
+
+    private fun getValues() {
+        scope.launch {
+            val liveData = repository.getTimerData()
+            _time.value = liveData.time
+            _timerPaused.value = liveData.isPaused
+
+            if (!timerIsPaused() && job?.isActive != true) {
+                startIncrementingTime()
+            }
+        }
+    }
+
+    fun hasStarted(): Boolean{
+        return (_time.value != 0)
     }
 
     private fun timerIsPaused(): Boolean{
         return _timerPaused.value == true
     }
 
+    ///This should be changed to a flow
     private fun startIncrementingTime() {
         job = scope.launch {
             while (true) {
@@ -55,22 +70,30 @@ class ProductivityTimer @Inject constructor(
 
     private fun pauseTimer(){
         _timerPaused.value = true
-        scope.launch{
-            repository.updateElapsedTime(_time.value)
-        }
         job?.cancel()
 
+        scope.launch {
+            repository.timerPaused(_time.value)
+        }
     }
 
     private fun resumeTimer() {
         _timerPaused.value = false
         startIncrementingTime()
+
+        scope.launch {
+            repository.resumeTimer()
+        }
     }
 
     fun resetTimer(){
         _time.value = 0
         job?.cancel()
-        _timerPaused.value = false
+        _timerPaused.value = true
+
+        scope.launch {
+            repository.resetTimer()
+        }
     }
 
 

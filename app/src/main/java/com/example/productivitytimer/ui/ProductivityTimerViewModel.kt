@@ -25,19 +25,20 @@ class ProductivityTimerViewModel @Inject constructor(
     private val repository: ProductivityTimerDBRepository,
     runningTimerRepository: RunningTimerRepository
 ): ViewModel() {
-
-    private val _time = MutableStateFlow(0) // Time in seconds
+    private val _time = MutableStateFlow(-1) // Time in seconds
     val time: StateFlow<Int> = _time
 
     private val _timerPaused = MutableLiveData(false)
     val timerPaused: LiveData<Boolean> = _timerPaused
-
     private val timer = ProductivityTimer(scope = viewModelScope, _time = _time, _timerPaused = _timerPaused, repository = runningTimerRepository)
 
 
-    fun startTimer() {
-
+    fun startTimer(){
         timer.start()
+    }
+
+    fun isTimerStarted(): Boolean{
+        return timer.hasStarted()
     }
 
     fun pauseOrResumeTimer() {
@@ -69,6 +70,9 @@ class ProductivityTimerViewModel @Inject constructor(
         repository.deleteRecord(id)
     }
 
+    fun startTimerInitial() {
+        timer.initialStart()
+    }
 
 
 }
