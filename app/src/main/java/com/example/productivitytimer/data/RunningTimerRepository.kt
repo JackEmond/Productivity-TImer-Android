@@ -1,7 +1,6 @@
 package com.example.productivitytimer.data
 
 import android.content.Context
-import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
@@ -45,11 +44,6 @@ class RunningTimerRepository  @Inject constructor(
             }
         else{
             val currentTime = System.currentTimeMillis()
-                val timerStarted = longInSeconds(timerStartTime)
-                Log.w("RunTimerRepo", "timer started: $timerStarted")
-                val currTime = longInSeconds(currentTime)
-                Log.w("RunTimerRepo", "currTime: $currTime")
-
             val timeElapsedSinceTimerResumed = (longInSeconds(currentTime) - longInSeconds(timerStartTime)).toInt()
             elapsedTime +  timeElapsedSinceTimerResumed
         }
