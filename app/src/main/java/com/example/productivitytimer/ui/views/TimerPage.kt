@@ -1,6 +1,5 @@
 package com.example.productivitytimer.ui.views
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -35,10 +34,8 @@ fun TimerPage(
     navigateToCreateTimerPage: () -> Unit,
     timerVM: ProductivityTimerViewModel
 ){
-
     //When app starts, start the timer
     LaunchedEffect(Unit) {
-        Log.w("TimerPage.kt", "launch effect hit")
         timerVM.startTimer()
     }
 
