@@ -8,6 +8,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -25,6 +26,10 @@ fun CreateTimerPage(
     navigateToTimerPage: () -> Unit,
     timerVM: ProductivityTimerViewModel
 ) {
+    LaunchedEffect(Unit) {
+        timerVM.setTime()
+    }
+
     NavigatedToTimerIfRunning(timerVM = timerVM, navigateToTimerPage = navigateToTimerPage)
 
     Column(
@@ -35,7 +40,6 @@ fun CreateTimerPage(
     ){
         CreateProductivityTimerText()
         SubmitButton{
-            navigateToTimerPage()
             timerVM.startTimerInitial()
         }
     }
@@ -46,8 +50,9 @@ fun NavigatedToTimerIfRunning(
     timerVM: ProductivityTimerViewModel,
     navigateToTimerPage: () -> Unit
 ) {
-    LaunchedEffect(Unit) {
-        if (timerVM.isTimerStarted()) {
+    val time = timerVM.time.collectAsState().value
+    LaunchedEffect(time) {
+        if (time > 0) {
             navigateToTimerPage()
         }
     }

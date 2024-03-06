@@ -37,8 +37,8 @@ class ProductivityTimerViewModel @Inject constructor(
         timer.start()
     }
 
-    fun isTimerStarted(): Boolean{
-        return timer.hasStarted()
+    fun setTime(){
+        timer.setTime()
     }
 
     fun pauseOrResumeTimer() {

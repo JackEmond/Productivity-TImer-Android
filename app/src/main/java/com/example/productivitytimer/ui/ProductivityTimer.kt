@@ -21,8 +21,16 @@ class ProductivityTimer @Inject constructor(
         scope.launch {
             repository.resumeTimer()
         }
+        start()
     }
 
+    fun setTime(){
+        scope.launch {
+            val liveData = repository.getTimerData()
+            _time.value = liveData.time
+            _timerPaused.value = liveData.isPaused
+        }
+    }
 
     fun start() {
         getValues()
@@ -38,10 +46,6 @@ class ProductivityTimer @Inject constructor(
                 startIncrementingTime()
             }
         }
-    }
-
-    fun hasStarted(): Boolean{
-        return (_time.value != 0)
     }
 
     private fun timerIsPaused(): Boolean{
