@@ -91,8 +91,8 @@ class ProductivityTimer @Inject constructor(
     }
 
     fun resetTimer(){
-        _time.value = 0
         job?.cancel()
+        _time.value = 0
         _timerPaused.value = true
         scope.launch {
             repository.resetTimer()

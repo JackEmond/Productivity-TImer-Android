@@ -32,13 +32,12 @@ class ProductivityTimerViewModel @Inject constructor(
     val timerPaused: LiveData<Boolean> = _timerPaused
     private val timer = ProductivityTimer(scope = viewModelScope, _time = _time, _timerPaused = _timerPaused, repository = runningTimerRepository)
 
+    init {
+        timer.setTime()
+    }
 
     fun startTimer(){
         timer.start()
-    }
-
-    fun setTime(){
-        timer.setTime()
     }
 
     fun pauseOrResumeTimer() {
@@ -48,6 +47,11 @@ class ProductivityTimerViewModel @Inject constructor(
     fun saveTimer(){
         val timeRan = time.value
         timer.resetTimer()
+        insertIntoDB(timeRan)
+
+    }
+
+    private fun insertIntoDB(timeRan: Int) {
         viewModelScope.launch {
             repository.insertTime(timeRan)
         }

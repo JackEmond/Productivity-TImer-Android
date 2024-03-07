@@ -1,5 +1,6 @@
 package com.example.productivitytimer.ui.views
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -26,9 +27,6 @@ fun CreateTimerPage(
     navigateToTimerPage: () -> Unit,
     timerVM: ProductivityTimerViewModel
 ) {
-    LaunchedEffect(Unit) {
-        timerVM.setTime()
-    }
 
     NavigatedToTimerIfRunning(timerVM = timerVM, navigateToTimerPage = navigateToTimerPage)
 
@@ -53,6 +51,7 @@ fun NavigatedToTimerIfRunning(
     val time = timerVM.time.collectAsState().value
     LaunchedEffect(time) {
         if (time > 0) {
+            Log.w("CreateTimerPage.kt", "curr time: $time")
             navigateToTimerPage()
         }
     }
