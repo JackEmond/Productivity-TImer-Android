@@ -12,7 +12,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -47,7 +46,7 @@ fun TimerPage(
     ){
         HeaderText()
 
-        TimerText(timerVM.time.collectAsState())
+        TimerText(timerVM)
         Buttons(navigateToCreateTimerPage, timerVM)
     }
 }
@@ -116,8 +115,8 @@ private fun HeaderText() {
 }
 
 @Composable
-private fun TimerText(time: State<Int>) {
-    val formattedTime = formatTime(time)
+private fun TimerText(timerVM: ProductivityTimerViewModel) {
+    val formattedTime by timerVM.formattedTime.collectAsState()
 
     Text(
         modifier = Modifier
@@ -130,15 +129,6 @@ private fun TimerText(time: State<Int>) {
         color = Color.White,
         textAlign = TextAlign.Center,
     )
-}
-
-fun formatTime(time: State<Int>): String {
-
-    val hours = time.value / 3600
-    val minutes = (time.value % 3600) / 60
-    val seconds = time.value % 60
-
-    return String.format("%02dHRS %02dMIN %02dSEC", hours, minutes, seconds)
 }
 
 @Preview(showBackground = true)
