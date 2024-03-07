@@ -45,9 +45,12 @@ class ProductivityTimerViewModel @Inject constructor(
         timer.pauseOrResume()
     }
 
-    fun saveTimer() = viewModelScope.launch{
-        repository.insertTime(time.value)
+    fun saveTimer(){
+        val timeRan = time.value
         timer.resetTimer()
+        viewModelScope.launch {
+            repository.insertTime(timeRan)
+        }
     }
 
     fun cancelTimer(){

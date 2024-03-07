@@ -30,7 +30,6 @@ import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
 
 @Composable
 fun TimerPage(
-    navigateToStatsPage: () -> Unit,
     navigateToCreateTimerPage: () -> Unit,
     timerVM: ProductivityTimerViewModel
 ){
@@ -49,14 +48,13 @@ fun TimerPage(
         HeaderText()
 
         TimerText(timerVM.time.collectAsState())
-        Buttons(navigateToStatsPage, navigateToCreateTimerPage, timerVM)
+        Buttons(navigateToCreateTimerPage, timerVM)
     }
 }
 
 
 @Composable
 private fun Buttons(
-    navigateToStatsPage: () -> Unit,
     navigateToCreateTimerPage: () -> Unit,
     timerVM: ProductivityTimerViewModel,
 ) {
@@ -81,8 +79,8 @@ private fun Buttons(
         TimerButton(
             text = "Save",
             onClick = {
-                navigateToStatsPage()
                 timerVM.saveTimer()
+                navigateToCreateTimerPage()
             }
         )
     }
