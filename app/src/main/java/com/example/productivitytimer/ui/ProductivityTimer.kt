@@ -5,7 +5,9 @@ import com.example.productivitytimer.data.RunningTimerRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -21,14 +23,18 @@ class ProductivityTimer @Inject constructor(
         scope.launch {
             repository.resumeTimer()
         }
+        start()
     }
 
+    fun setTime(){
+        scope.launch {
+            val liveData = repository.getTimerData()
+            _time.value = liveData.time
+            _timerPaused.value = liveData.isPaused
+        }
+    }
 
     fun start() {
-        getValues()
-    }
-
-    private fun getValues() {
         scope.launch {
             val liveData = repository.getTimerData()
             _time.value = liveData.time
@@ -40,21 +46,23 @@ class ProductivityTimer @Inject constructor(
         }
     }
 
-    fun hasStarted(): Boolean{
-        return (_time.value != 0)
-    }
-
     private fun timerIsPaused(): Boolean{
         return _timerPaused.value == true
     }
+    private fun timerFlow(startFrom: Int): Flow<Int> = flow {
+        var time = startFrom
+        while (true) {
+            emit(time)
+            time += 1
+            delay(1000L)
+        }
+    }
 
-    ///This should be changed to a flow
     private fun startIncrementingTime() {
+        job?.cancel()
         job = scope.launch {
-            while (true) {
-                _time.value += 1
-                delay(1000L) // Wait for a second
-
+            timerFlow(_time.value).collect { currentTime ->
+                _time.value = currentTime
             }
         }
     }
@@ -67,11 +75,9 @@ class ProductivityTimer @Inject constructor(
 
     }
 
-
     private fun pauseTimer(){
         _timerPaused.value = true
         job?.cancel()
-
         scope.launch {
             repository.timerPaused(_time.value)
         }
@@ -87,10 +93,9 @@ class ProductivityTimer @Inject constructor(
     }
 
     fun resetTimer(){
-        _time.value = 0
         job?.cancel()
+        _time.value = 0
         _timerPaused.value = true
-
         scope.launch {
             repository.resetTimer()
         }

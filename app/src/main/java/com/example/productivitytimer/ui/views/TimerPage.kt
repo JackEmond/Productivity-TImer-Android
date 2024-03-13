@@ -1,6 +1,5 @@
 package com.example.productivitytimer.ui.views
 
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -10,11 +9,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -32,14 +29,11 @@ import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
 
 @Composable
 fun TimerPage(
-    navigateToStatsPage: () -> Unit,
     navigateToCreateTimerPage: () -> Unit,
     timerVM: ProductivityTimerViewModel
 ){
-
     //When app starts, start the timer
     LaunchedEffect(Unit) {
-        Log.w("TimerPage.kt", "launch effect hit")
         timerVM.startTimer()
     }
 
@@ -52,15 +46,14 @@ fun TimerPage(
     ){
         HeaderText()
 
-        TimerText(timerVM.time.collectAsState())
-        Buttons(navigateToStatsPage, navigateToCreateTimerPage, timerVM)
+        TimerText(timerVM)
+        Buttons(navigateToCreateTimerPage, timerVM)
     }
 }
 
 
 @Composable
 private fun Buttons(
-    navigateToStatsPage: () -> Unit,
     navigateToCreateTimerPage: () -> Unit,
     timerVM: ProductivityTimerViewModel,
 ) {
@@ -85,8 +78,8 @@ private fun Buttons(
         TimerButton(
             text = "Save",
             onClick = {
-                navigateToStatsPage()
                 timerVM.saveTimer()
+                navigateToCreateTimerPage()
             }
         )
     }
@@ -101,7 +94,6 @@ private fun TimerButton(
     Button(
         onClick = onClick,
         modifier = modifier.padding(10.dp),
-        colors = ButtonDefaults.buttonColors(Color.Black),
         shape = RectangleShape,
     ) {
         Text(
@@ -123,8 +115,8 @@ private fun HeaderText() {
 }
 
 @Composable
-private fun TimerText(time: State<Int>) {
-    val formattedTime = formatTime(time)
+private fun TimerText(timerVM: ProductivityTimerViewModel) {
+    val formattedTime by timerVM.formattedTime.collectAsState()
 
     Text(
         modifier = Modifier
@@ -137,15 +129,6 @@ private fun TimerText(time: State<Int>) {
         color = Color.White,
         textAlign = TextAlign.Center,
     )
-}
-
-fun formatTime(time: State<Int>): String {
-
-    val hours = time.value / 3600
-    val minutes = (time.value % 3600) / 60
-    val seconds = time.value % 60
-
-    return String.format("%02dHRS %02dMIN %02dSEC", hours, minutes, seconds)
 }
 
 @Preview(showBackground = true)

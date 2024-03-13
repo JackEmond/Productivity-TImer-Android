@@ -1,6 +1,5 @@
 package com.example.productivitytimer.data
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import com.example.productivitytimer.data.local.TimerRecord
 import com.example.productivitytimer.data.local.TimerRecordDao
@@ -13,8 +12,6 @@ class ProductivityTimerDBRepository @Inject constructor(
     private val localDataSource: TimerRecordDao,
 ){
     suspend fun insertTime(time: Int) {
-        Log.w("Jack test", "time: $time")
-
         val timer = TimerRecord(
             time = time,
             date= System.currentTimeMillis()
