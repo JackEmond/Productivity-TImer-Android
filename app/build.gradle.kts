@@ -94,6 +94,11 @@ dependencies {
 
     //Live Data
     implementation ("androidx.compose.runtime:runtime-livedata:1.6.1")
+
+    //Vico Graph
+    implementation("com.patrykandpatrick.vico:compose:2.0.0-alpha.10") // For Jetpack Compose.
+    implementation("com.patrykandpatrick.vico:compose-m3:2.0.0-alpha.10") // For `compose`. Creates a `ChartStyle` based on an M3 Material Theme.
+    implementation("com.patrykandpatrick.vico:core:2.0.0-alpha.10") // Houses the core logic for charts and other elements. Included in all other modules
 }
 
 kapt {
