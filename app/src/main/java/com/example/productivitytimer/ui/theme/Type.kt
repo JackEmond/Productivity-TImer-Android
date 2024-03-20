@@ -9,7 +9,7 @@ import androidx.compose.ui.unit.sp
 import com.example.productivitytimer.R
 
 val CustomFontFamily = FontFamily(
-    Font(R.font.bebas_neue) // Replace 'your_font_file' with your actual font file name
+    Font(R.font.bebas_neue) 
 )
 // Set of Material typography styles to start with
 val Typography = Typography(
