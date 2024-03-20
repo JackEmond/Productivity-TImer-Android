@@ -48,14 +48,14 @@ import java.util.Locale
 
 @Composable
 fun AllTimersPage(
-    timerVM: ProductivityTimerViewModel = hiltViewModel()
+    timerVM: ProductivityTimerViewModel
 ){
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
       ){
         StatsText()
-        VicoChart()
+        VicoChart(timerVM)
         AllTimersText()
         AllTimers(timerVM)
     }
@@ -75,12 +75,10 @@ fun StatsText() {
         textAlign = TextAlign.Center,
     )
 }
-private val daysOfWeek = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
-private val bottomAxisValueFormatter =
-    AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _, _ -> daysOfWeek[x.toInt() % daysOfWeek.size] }
+
 
 @Composable
-fun VicoChart() {
+fun VicoChart(timerVM: ProductivityTimerViewModel) {
     Box(modifier = Modifier
         .height(200.dp)
         .fillMaxWidth()) {
@@ -100,29 +98,24 @@ fun VicoChart() {
         }
             // This box will fill the bottom half of the container
         Box(
-            modifier = Modifier.background(Color.White)
+            modifier = Modifier
+                .background(Color.White)
                 .fillMaxWidth(0.9f)
                 .align(Alignment.Center)
         ){
             val modelProducer = remember { CartesianChartModelProducer.build() }
-            val data = mapOf(
-                "Mon" to 9,
-                "Tue" to 4,
-                "Wed" to 3,
-                "Thu" to 2,
-                "Fri" to 1,
-                "Sat" to 5,
-                "Sun" to 6
-            )
-            val labelListKey = ExtraStore.Key<List<String>>()
-            LaunchedEffect(Unit) {
+            val data2 by timerVM.graphData.observeAsState(initial = emptyMap())
+            LaunchedEffect(data2) {
                 modelProducer.tryRunTransaction {
                     columnSeries {
-                        series(data.values)
-                        updateExtras { it[labelListKey] = data.keys.toList() }
+                        series(data2.values)
                     }
                 }
             }
+            val daysOfWeek = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+            val bottomAxisValueFormatter =
+                AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _, _ -> daysOfWeek[x.toInt() % daysOfWeek.size] }
+
             CartesianChartHost(
                 rememberCartesianChart(
                     rememberColumnCartesianLayer(

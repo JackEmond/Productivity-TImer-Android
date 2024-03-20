@@ -1,5 +1,6 @@
 package com.example.productivitytimer.ui
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,6 +8,7 @@ import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.example.productivitytimer.data.ProductivityTimerDBRepository
 import com.example.productivitytimer.data.RunningTimerRepository
+import com.example.productivitytimer.data.local.TimerRecordDao
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -22,7 +24,6 @@ data class TimerRecord(
     val date:Long
 )
 
-
 @HiltViewModel
 class ProductivityTimerViewModel @Inject constructor(
     private val repository: ProductivityTimerDBRepository,
@@ -36,8 +37,16 @@ class ProductivityTimerViewModel @Inject constructor(
 
     private val timer = ProductivityTimer(scope = viewModelScope, _time = _time, _timerPaused = _timerPaused, repository = runningTimerRepository)
 
+    private val _graphData = MutableLiveData<Map<String, Int>>()
+    val graphData: LiveData<Map<String, Int>> = _graphData
+
     init {
-        timer.setTime()
+        //timer.setTime()
+        viewModelScope.launch {
+            repository.getTimersFromLast7Days().collect { daySums ->
+                _graphData.value = transformCurrWeekOfTimersToGraphData(daySums)
+            }
+        }
     }
 
     val formattedTime: StateFlow<String> = _time.map { timeInSeconds ->
@@ -96,6 +105,35 @@ class ProductivityTimerViewModel @Inject constructor(
     fun startTimerInitial() {
         timer.initialStart()
     }
+
+
+
+
+    fun getCurrWeekOfTimers(){
+        viewModelScope.launch {
+            repository.getTimersFromLast7Days().collect { daySums ->
+                val transformedData =transformCurrWeekOfTimersToGraphData(daySums)
+                Log.w("ViewModel", "Transformed Data: $transformedData")
+                _graphData.value = transformedData
+            }
+        }
+    }
+
+    private fun transformCurrWeekOfTimersToGraphData(daySums: List<TimerRecordDao.DaySum>): Map<String, Int> {
+            return mapOf(
+                "Sun" to 1,
+                "Mon" to 2,
+                "Tues" to 2,
+                "Wed" to 2,
+                "Thurs" to 3,
+                "Fri" to 2,
+                "Sat" to 2,
+
+            )
+
+    }
+
+
 
 
 }

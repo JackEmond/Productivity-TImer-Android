@@ -58,7 +58,7 @@ fun MyNavController(navController: NavHostController, timerVM: ProductivityTimer
             CreateTimerPage( navigateToTimerPage = {navController.navigate("TimerPage")}, timerVM) }
         composable("TimerPage") {
             TimerPage(navigateToCreateTimerPage = {navController.navigate("CreateTimerPage")}, timerVM) }
-        composable("AllTimersPage") { AllTimersPage() }
+        composable("AllTimersPage") { AllTimersPage(timerVM) }
         composable("InfoPage") { InfoPage() }
     }
 }

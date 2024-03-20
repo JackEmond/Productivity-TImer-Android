@@ -1,8 +1,10 @@
 package com.example.productivitytimer.data
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.liveData
 import com.example.productivitytimer.data.local.TimerRecord
 import com.example.productivitytimer.data.local.TimerRecordDao
+import kotlinx.coroutines.flow.Flow
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -26,7 +28,9 @@ class ProductivityTimerDBRepository @Inject constructor(
         localDataSource.deleteById(id)
     }
 
-    fun getTimersFromLast7Days(): LiveData<List<TimerRecord>>{
+
+
+    fun getTimersFromLast7Days(): Flow<List<TimerRecordDao.DaySum>> {
         //Get time from 7 days ago at midnight
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -7)
@@ -34,9 +38,8 @@ class ProductivityTimerDBRepository @Inject constructor(
         calendar.set(Calendar.MINUTE, 0)
         calendar.set(Calendar.SECOND, 0)
         calendar.set(Calendar.MILLISECOND, 0)
-
-
         val currentTime = calendar.timeInMillis
+
         return localDataSource.getTimersFromLast7Days(currentTime)
     }
 
