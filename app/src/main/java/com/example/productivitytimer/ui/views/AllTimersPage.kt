@@ -26,7 +26,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.productivitytimer.ui.ProductivityTimerViewModel
 import com.example.productivitytimer.ui.TimerRecord
 import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
@@ -40,7 +39,6 @@ import com.patrykandpatrick.vico.core.axis.AxisPosition
 import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.component.shape.Shapes
 import com.patrykandpatrick.vico.core.model.CartesianChartModelProducer
-import com.patrykandpatrick.vico.core.model.ExtraStore
 import com.patrykandpatrick.vico.core.model.columnSeries
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -112,10 +110,9 @@ fun VicoChart(timerVM: ProductivityTimerViewModel) {
                     }
                 }
             }
-            val daysOfWeek = listOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+            val daysOfWeek = data2.keys.toList()
             val bottomAxisValueFormatter =
                 AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _, _ -> daysOfWeek[x.toInt() % daysOfWeek.size] }
-
             CartesianChartHost(
                 rememberCartesianChart(
                     rememberColumnCartesianLayer(

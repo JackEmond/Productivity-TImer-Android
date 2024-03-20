@@ -1,6 +1,5 @@
 package com.example.productivitytimer.ui
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -16,6 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 
 data class TimerRecord(
@@ -41,7 +41,7 @@ class ProductivityTimerViewModel @Inject constructor(
     val graphData: LiveData<Map<String, Int>> = _graphData
 
     init {
-        //timer.setTime()
+        timer.setTime()
         viewModelScope.launch {
             repository.getTimersFromLast7Days().collect { daySums ->
                 _graphData.value = transformCurrWeekOfTimersToGraphData(daySums)
@@ -107,33 +107,34 @@ class ProductivityTimerViewModel @Inject constructor(
     }
 
 
+    private fun transformCurrWeekOfTimersToGraphData(timeRanEachDay: List<TimerRecordDao.TimeRanEachDay>): Map<String, Int> {
 
+        val map = mutableMapOf<String,Int>()
 
-    fun getCurrWeekOfTimers(){
-        viewModelScope.launch {
-            repository.getTimersFromLast7Days().collect { daySums ->
-                val transformedData =transformCurrWeekOfTimersToGraphData(daySums)
-                Log.w("ViewModel", "Transformed Data: $transformedData")
-                _graphData.value = transformedData
-            }
+        val currDay  = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
+        val daysOfTheWeek = arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+
+        for (i in currDay until daysOfTheWeek.size) {
+            map[daysOfTheWeek[i]] = 0
         }
+        for (i in 0 until currDay) {
+            map[daysOfTheWeek[i]] = 0
+        }
+
+
+        for (t in timeRanEachDay) {
+            val dayOfWeek = covertDayOfWeekFromIntToString(t.dayOfWeek)
+            map[dayOfWeek] = map[dayOfWeek]?.plus(t.sumTime) ?: t.sumTime
+        }
+
+    return map
     }
 
-    private fun transformCurrWeekOfTimersToGraphData(daySums: List<TimerRecordDao.DaySum>): Map<String, Int> {
-            return mapOf(
-                "Sun" to 1,
-                "Mon" to 2,
-                "Tues" to 2,
-                "Wed" to 2,
-                "Thurs" to 3,
-                "Fri" to 2,
-                "Sat" to 2,
-
-            )
+    private fun covertDayOfWeekFromIntToString(dayOfWeek: String): String {
+        val daysOfTheWeek = arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+        return daysOfTheWeek[dayOfWeek.toInt()]
 
     }
-
-
 
 
 }
