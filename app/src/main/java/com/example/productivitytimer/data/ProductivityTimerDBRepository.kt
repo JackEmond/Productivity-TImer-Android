@@ -1,7 +1,6 @@
 package com.example.productivitytimer.data
 
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.liveData
 import com.example.productivitytimer.data.local.TimerRecord
 import com.example.productivitytimer.data.local.TimerRecordDao
 import kotlinx.coroutines.flow.Flow
@@ -30,7 +29,7 @@ class ProductivityTimerDBRepository @Inject constructor(
 
 
 
-    fun getTimersFromLast7Days(): Flow<List<TimerRecordDao.DaySum>> {
+    fun getTimersFromLast7Days(): Flow<List<TimerRecordDao.TimeRanEachDay>> {
         //Get time from 7 days ago at midnight
         val calendar = Calendar.getInstance()
         calendar.add(Calendar.DAY_OF_YEAR, -7)
