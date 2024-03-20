@@ -16,9 +16,9 @@ interface TimerRecordDao {
     fun getAllTimers(): LiveData<List<TimerRecord>>
 
     @Query("SELECT SUM(time) as sumTime, strftime('%w', date / 1000, 'unixepoch') as dayOfWeek FROM timerrecord WHERE date > :sevenDaysAgo GROUP BY dayOfWeek")
-    fun getTimersFromLast7Days(sevenDaysAgo: Long): Flow<List<DaySum>>
+    fun getTimersFromLast7Days(sevenDaysAgo: Long): Flow<List<TimeRanEachDay>>
 
-    data class DaySum(val dayOfWeek: String, val sumTime: Int)
+    data class TimeRanEachDay(val dayOfWeek: String, val sumTime: Int)
 
     @Query("DELETE FROM timerrecord WHERE id = :id")
     suspend fun deleteById(id: Int)
