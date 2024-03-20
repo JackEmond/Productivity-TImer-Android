@@ -14,6 +14,10 @@ interface TimerRecordDao {
     @Query("Select * FROM timerrecord ORDER BY DATE DESC")
     fun getAllTimers(): LiveData<List<TimerRecord>>
 
+    @Query("SELECT * FROM timerrecord WHERE DATE >= :sevenDaysAgo ORDER BY DATE DESC")
+    fun getTimersFromLast7Days(sevenDaysAgo: Long): LiveData<List<TimerRecord>>
+
+
     @Query("DELETE FROM timerrecord WHERE id = :id")
     suspend fun deleteById(id: Int)
 }
