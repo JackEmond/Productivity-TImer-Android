@@ -7,7 +7,7 @@ import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.example.productivitytimer.data.ProductivityTimerDBRepository
 import com.example.productivitytimer.data.local.TimerRecordDao
-import com.example.productivitytimer.ui.TimerRecord
+import com.example.productivitytimer.ui.timer.TimerRecord
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.Calendar

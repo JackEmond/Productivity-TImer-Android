@@ -1,4 +1,4 @@
-package com.example.productivitytimer.ui
+package com.example.productivitytimer.ui.timer
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
