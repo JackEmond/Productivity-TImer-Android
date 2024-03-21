@@ -47,15 +47,17 @@ import java.util.Locale
 fun AllTimersPage(
     statsVM: StatsViewModel
 ){
+    val data by statsVM.graphData.observeAsState(initial = emptyMap())
+    val timerRecords by statsVM.getAllTimers().observeAsState(initial = emptyList())
+
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
       ){
         StatsText()
-        val data by statsVM.graphData.observeAsState(initial = emptyMap())
         VicoChart(data)
         AllTimersText()
-        AllTimers(statsVM)
+        AllTimers(timerRecords, deleteTimer = { id-> statsVM.deleteTimer(id)})
     }
 }
 
@@ -135,17 +137,16 @@ fun VicoChart(data: Map<String, Int>) {
 }
 
 @Composable
-fun AllTimers(statsVM: StatsViewModel) {
-    val timerRecords by statsVM.getAllTimers().observeAsState(initial = emptyList())
+fun AllTimers(timerRecords: List<TimerRecord>, deleteTimer: (Int) -> Unit) {
     LazyColumn{
         items(timerRecords) { timerRecord ->
-            DisplayTimer(timerRecord, statsVM)
+            DisplayTimer(timerRecord = timerRecord, deleteTimer = {deleteTimer(timerRecord.id)})
         }
     }
 }
 
 @Composable
-fun DisplayTimer(timerRecord: TimerRecord, statsVM: StatsViewModel) {
+fun DisplayTimer(timerRecord: TimerRecord, deleteTimer:() -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -165,7 +166,7 @@ fun DisplayTimer(timerRecord: TimerRecord, statsVM: StatsViewModel) {
             )
         }
         Button(
-            onClick = { statsVM.deleteTimer(timerRecord.id) },
+            onClick = deleteTimer,
             shape = RectangleShape
         ) {
             Text(text = "Delete")
