@@ -3,7 +3,6 @@ package com.example.productivitytimer.ui
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.example.productivitytimer.data.ProductivityTimerDBRepository
 import com.example.productivitytimer.data.RunningTimerRepository
@@ -22,7 +21,6 @@ data class TimerRecord(
     val date:Long
 )
 
-
 @HiltViewModel
 class ProductivityTimerViewModel @Inject constructor(
     private val repository: ProductivityTimerDBRepository,
@@ -35,6 +33,7 @@ class ProductivityTimerViewModel @Inject constructor(
     val timerPaused: LiveData<Boolean> = _timerPaused
 
     private val timer = ProductivityTimer(scope = viewModelScope, _time = _time, _timerPaused = _timerPaused, repository = runningTimerRepository)
+
 
     init {
         timer.setTime()
@@ -77,25 +76,11 @@ class ProductivityTimerViewModel @Inject constructor(
         timer.resetTimer()
     }
 
-    fun getAllTimers(): LiveData<List<TimerRecord>> {
-        return repository.getAllTimers().map { list ->
-            list.map { timerRecord ->
-                TimerRecord(
-                    id = timerRecord.id,
-                    time = timerRecord.time,
-                    date = timerRecord.date
-                )
-            }
-        }
-    }
-
-    fun deleteTimer(id: Int) = viewModelScope.launch{
-        repository.deleteRecord(id)
-    }
 
     fun startTimerInitial() {
         timer.initialStart()
     }
+
 
 
 }
