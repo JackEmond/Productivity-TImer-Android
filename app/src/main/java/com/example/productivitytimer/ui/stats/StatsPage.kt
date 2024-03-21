@@ -44,7 +44,7 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun AllTimersPage(
+fun StatsPage(
     statsVM: StatsViewModel
 ){
     val data by statsVM.graphData.observeAsState(initial = emptyMap())

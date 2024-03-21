@@ -11,10 +11,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.productivitytimer.ui.BottomNavBar
-import com.example.productivitytimer.ui.stats.AllTimersPage
 import com.example.productivitytimer.ui.views.CreateTimerPage
 import com.example.productivitytimer.ui.views.InfoPage
 import com.example.productivitytimer.ui.ProductivityTimerViewModel
+import com.example.productivitytimer.ui.stats.StatsPage
 import com.example.productivitytimer.ui.stats.StatsViewModel
 import com.example.productivitytimer.ui.views.TimerPage
 import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
@@ -50,7 +50,7 @@ fun MyNavController(navController: NavHostController, timerVM: ProductivityTimer
             CreateTimerPage( navigateToTimerPage = {navController.navigate("TimerPage")}, timerVM) }
         composable("TimerPage") {
             TimerPage(navigateToCreateTimerPage = {navController.navigate("CreateTimerPage")}, timerVM) }
-        composable("AllTimersPage") { AllTimersPage(statsVM) }
+        composable("AllTimersPage") { StatsPage(statsVM) }
         composable("InfoPage") { InfoPage() }
     }
 }
