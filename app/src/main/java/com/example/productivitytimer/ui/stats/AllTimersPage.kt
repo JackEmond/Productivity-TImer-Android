@@ -1,4 +1,4 @@
-package com.example.productivitytimer.ui.views
+package com.example.productivitytimer.ui.stats
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -26,7 +26,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.productivitytimer.ui.ProductivityTimerViewModel
 import com.example.productivitytimer.ui.TimerRecord
 import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
@@ -46,16 +45,16 @@ import java.util.Locale
 
 @Composable
 fun AllTimersPage(
-    timerVM: ProductivityTimerViewModel
+    statsVM: StatsViewModel
 ){
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
       ){
         StatsText()
-        VicoChart(timerVM)
+        VicoChart(statsVM)
         AllTimersText()
-        AllTimers(timerVM)
+        AllTimers(statsVM)
     }
 }
 
@@ -76,7 +75,7 @@ fun StatsText() {
 
 
 @Composable
-fun VicoChart(timerVM: ProductivityTimerViewModel) {
+fun VicoChart(statsVM: StatsViewModel) {
     Box(modifier = Modifier
         .height(200.dp)
         .fillMaxWidth()) {
@@ -102,7 +101,7 @@ fun VicoChart(timerVM: ProductivityTimerViewModel) {
                 .align(Alignment.Center)
         ){
             val modelProducer = remember { CartesianChartModelProducer.build() }
-            val data2 by timerVM.graphData.observeAsState(initial = emptyMap())
+            val data2 by statsVM.graphData.observeAsState(initial = emptyMap())
             LaunchedEffect(data2) {
                 modelProducer.tryRunTransaction {
                     columnSeries {
@@ -136,17 +135,17 @@ fun VicoChart(timerVM: ProductivityTimerViewModel) {
 }
 
 @Composable
-fun AllTimers(timerVM: ProductivityTimerViewModel) {
-    val timerRecords by timerVM.getAllTimers().observeAsState(initial = emptyList())
+fun AllTimers(statsVM: StatsViewModel) {
+    val timerRecords by statsVM.getAllTimers().observeAsState(initial = emptyList())
     LazyColumn{
         items(timerRecords) { timerRecord ->
-            DisplayTimer(timerRecord,timerVM)
+            DisplayTimer(timerRecord, statsVM)
         }
     }
 }
 
 @Composable
-fun DisplayTimer(timerRecord: TimerRecord, timerVM: ProductivityTimerViewModel) {
+fun DisplayTimer(timerRecord: TimerRecord, statsVM: StatsViewModel) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -166,7 +165,7 @@ fun DisplayTimer(timerRecord: TimerRecord, timerVM: ProductivityTimerViewModel) 
             )
         }
         Button(
-            onClick = { timerVM.deleteTimer(timerRecord.id) },
+            onClick = { statsVM.deleteTimer(timerRecord.id) },
             shape = RectangleShape
         ) {
             Text(text = "Delete")
