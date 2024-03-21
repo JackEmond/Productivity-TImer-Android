@@ -49,7 +49,7 @@ fun StatsPage(
 ){
     val data by statsVM.graphData.observeAsState(initial = emptyMap())
     val timerRecords by statsVM.getAllTimers().observeAsState(initial = emptyList())
-    AllTimersContent(
+    StatsPageContent(
         data = data,
         timerRecords = timerRecords,
         deleteTimer = { id-> statsVM.deleteTimer(id)}
@@ -57,7 +57,7 @@ fun StatsPage(
 }
 
 @Composable
-fun AllTimersContent(data: Map<String, Int>, timerRecords: List<TimerRecord>, deleteTimer:(Int) -> Unit) {
+fun StatsPageContent(data: Map<String, Int>, timerRecords: List<TimerRecord>, deleteTimer:(Int) -> Unit) {
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
@@ -67,9 +67,7 @@ fun AllTimersContent(data: Map<String, Int>, timerRecords: List<TimerRecord>, de
         AllTimersText()
         AllTimers(timerRecords, deleteTimer = deleteTimer)
     }
-
 }
-
 
 @Composable
 fun StatsText() {
@@ -228,9 +226,9 @@ fun AllTimersText() {
 
 @Preview(apiLevel = 33, showBackground = true)
 @Composable
-private fun AllTimersPagePreview() {
+private fun StatsPagePreview() {
     ProductivityTimerTheme {
-        AllTimersContent(
+        StatsPageContent(
             data = mapOf(
                 "S" to 1,
                 "M" to 2,
