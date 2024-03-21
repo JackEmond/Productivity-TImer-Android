@@ -12,7 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.productivitytimer.ui.BottomNavBar
 import com.example.productivitytimer.ui.timer.CreateTimerPage
-import com.example.productivitytimer.ui.views.InfoPage
+import com.example.productivitytimer.ui.info.InfoPage
 import com.example.productivitytimer.ui.timer.ProductivityTimerViewModel
 import com.example.productivitytimer.ui.stats.StatsPage
 import com.example.productivitytimer.ui.stats.StatsViewModel
