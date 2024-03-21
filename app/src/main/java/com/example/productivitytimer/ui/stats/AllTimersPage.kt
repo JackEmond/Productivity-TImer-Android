@@ -237,7 +237,7 @@ private fun AllTimersPagePreview() {
                 "T" to 3,
                 "W" to 3,
                 "T" to 3,
-                "F" to 3,
+                "F" to 4,
                 "S" to 3,
             ),
             timerRecords =  listOf(
