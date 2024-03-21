@@ -1,5 +1,6 @@
 package com.example.productivitytimer.ui.stats
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -11,6 +12,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -74,11 +77,11 @@ fun StatsText() {
     Text(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.Black)
+            .background(MaterialTheme.colorScheme.primary)
             .padding(top = 35.dp, bottom = 35.dp)
         ,
         fontSize = 45.sp,
-        color = Color.White,
+        color = MaterialTheme.colorScheme.secondary,
         text = "Stats",
         textAlign = TextAlign.Center,
     )
@@ -95,13 +98,13 @@ fun VicoChart(data: Map<String, Int>) {
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .background(Color.Black)
+                    .background(MaterialTheme.colorScheme.primary)
             )
             Box(
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth()
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.secondary)
             )
         }
             // This box will fill the bottom half of the container
@@ -246,5 +249,31 @@ private fun StatsPagePreview() {
             deleteTimer =  {}
 
         )
+    }
+}
+
+@Preview(apiLevel = 33, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun StatsPagePreviewDarkMode() {
+    ProductivityTimerTheme { Surface{
+        StatsPageContent(
+            data = mapOf(
+                "S" to 1,
+                "M" to 2,
+                "T" to 3,
+                "W" to 3,
+                "T" to 3,
+                "F" to 4,
+                "S" to 3,
+            ),
+            timerRecords =  listOf(
+                TimerRecord(1, 50, 100),
+                TimerRecord(1, 312, 100),
+                TimerRecord(1, 978, 100),
+            ),
+            deleteTimer =  {}
+
+        )
+    }
     }
 }
