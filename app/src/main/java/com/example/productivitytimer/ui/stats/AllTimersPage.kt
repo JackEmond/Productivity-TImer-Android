@@ -52,7 +52,8 @@ fun AllTimersPage(
         modifier = Modifier.fillMaxWidth()
       ){
         StatsText()
-        VicoChart(statsVM)
+        val data by statsVM.graphData.observeAsState(initial = emptyMap())
+        VicoChart(data)
         AllTimersText()
         AllTimers(statsVM)
     }
@@ -75,7 +76,7 @@ fun StatsText() {
 
 
 @Composable
-fun VicoChart(statsVM: StatsViewModel) {
+fun VicoChart(data: Map<String, Int>) {
     Box(modifier = Modifier
         .height(200.dp)
         .fillMaxWidth()) {
@@ -101,15 +102,14 @@ fun VicoChart(statsVM: StatsViewModel) {
                 .align(Alignment.Center)
         ){
             val modelProducer = remember { CartesianChartModelProducer.build() }
-            val data2 by statsVM.graphData.observeAsState(initial = emptyMap())
-            LaunchedEffect(data2) {
+            LaunchedEffect(data) {
                 modelProducer.tryRunTransaction {
                     columnSeries {
-                        series(data2.values)
+                        series(data.values)
                     }
                 }
             }
-            val daysOfWeek = data2.keys.toList()
+            val daysOfWeek = data.keys.toList()
             val bottomAxisValueFormatter =
                 AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _, _ -> daysOfWeek[x.toInt() % daysOfWeek.size] }
             CartesianChartHost(
