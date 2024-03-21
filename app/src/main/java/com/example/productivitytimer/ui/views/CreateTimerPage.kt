@@ -26,9 +26,12 @@ fun CreateTimerPage(
     navigateToTimerPage: () -> Unit,
     timerVM: ProductivityTimerViewModel
 ) {
-
     NavigatedToTimerIfRunning(timerVM = timerVM, navigateToTimerPage = navigateToTimerPage)
+    CreateTimerScreen(startTimer = {timerVM.startTimerInitial()})
+}
 
+@Composable
+fun CreateTimerScreen(startTimer: () -> Unit) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -36,9 +39,7 @@ fun CreateTimerPage(
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         CreateProductivityTimerText()
-        SubmitButton{
-            timerVM.startTimerInitial()
-        }
+        SubmitButton(startTimer)
     }
 }
 
@@ -87,6 +88,6 @@ fun SubmitButton(onclick: () -> Unit) {
 @Composable
 fun CreateTimerPagePreview() {
     ProductivityTimerTheme {
-        //CreateTimerPage(navHostController = rememberNavController())
+        CreateTimerScreen(startTimer = {})
     }
 }
