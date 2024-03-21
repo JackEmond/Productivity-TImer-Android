@@ -37,6 +37,36 @@ fun TimerPage(
         timerVM.startTimer()
     }
 
+    val formattedTime by timerVM.formattedTime.collectAsState()
+    val pauseOrResumeTimer = { timerVM.pauseOrResumeTimer() }
+    val cancelTimer = {
+        timerVM.cancelTimer()
+        navigateToCreateTimerPage()
+    }
+    val saveTimer = {
+        timerVM.saveTimer()
+        navigateToCreateTimerPage()
+    }
+    val isPaused by timerVM.timerPaused.observeAsState(false)
+
+    TimerPageScreen(
+        formattedTime = formattedTime,
+        pauseOrResumeTimer = pauseOrResumeTimer,
+        cancelTimer = cancelTimer,
+        saveTimer = saveTimer,
+        isPaused = isPaused
+    )
+
+}
+
+@Composable
+fun TimerPageScreen(
+    formattedTime: String,
+    pauseOrResumeTimer: () -> Unit,
+    cancelTimer: () -> Unit,
+    saveTimer: () -> Unit,
+    isPaused: Boolean
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -45,42 +75,38 @@ fun TimerPage(
         verticalArrangement = Arrangement.Center
     ){
         HeaderText()
-
-        TimerText(timerVM)
-        Buttons(navigateToCreateTimerPage, timerVM)
+        TimerText(formattedTime)
+        Buttons(
+            pauseOrResumeTimer = pauseOrResumeTimer,
+            cancelTimer = cancelTimer,
+            saveTimer = saveTimer,
+            isPaused = isPaused
+        )
     }
 }
 
 
 @Composable
 private fun Buttons(
-    navigateToCreateTimerPage: () -> Unit,
-    timerVM: ProductivityTimerViewModel,
+    pauseOrResumeTimer: () -> Unit,
+    cancelTimer: () -> Unit,
+    saveTimer: () -> Unit,
+    isPaused: Boolean,
 ) {
-    val isPaused by timerVM.timerPaused.observeAsState(false)
-
     Row{
         TimerButton(
             text = if (isPaused) "Resume" else "Pause",
-            onClick = {
-                timerVM.pauseOrResumeTimer()
-            }
+            onClick = pauseOrResumeTimer
         )
 
         TimerButton(
             text = "Cancel",
-            onClick = {
-                timerVM.cancelTimer()
-                navigateToCreateTimerPage()
-            }
+            onClick = cancelTimer
         )
 
         TimerButton(
             text = "Save",
-            onClick = {
-                timerVM.saveTimer()
-                navigateToCreateTimerPage()
-            }
+            onClick = saveTimer
         )
     }
 }
@@ -115,9 +141,7 @@ private fun HeaderText() {
 }
 
 @Composable
-private fun TimerText(timerVM: ProductivityTimerViewModel) {
-    val formattedTime by timerVM.formattedTime.collectAsState()
-
+private fun TimerText(formattedTime: String) {
     Text(
         modifier = Modifier
             .fillMaxWidth()
@@ -135,6 +159,13 @@ private fun TimerText(timerVM: ProductivityTimerViewModel) {
 @Composable
 private fun TimerPagePreview() {
     ProductivityTimerTheme {
-        //TimerPage(navController = rememberNavController())
+        TimerPageScreen(
+            formattedTime = "01HRS 30MIN 20SEC",
+            pauseOrResumeTimer = {},
+            cancelTimer = {},
+            saveTimer = {},
+            isPaused = false
+        )
+
     }
 }
