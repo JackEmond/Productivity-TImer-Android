@@ -49,17 +49,27 @@ fun AllTimersPage(
 ){
     val data by statsVM.graphData.observeAsState(initial = emptyMap())
     val timerRecords by statsVM.getAllTimers().observeAsState(initial = emptyList())
+    AllTimersContent(
+        data = data,
+        timerRecords = timerRecords,
+        deleteTimer = { id-> statsVM.deleteTimer(id)}
+    )
+}
 
+@Composable
+fun AllTimersContent(data: Map<String, Int>, timerRecords: List<TimerRecord>, deleteTimer:(Int) -> Unit) {
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
-      ){
+    ){
         StatsText()
         VicoChart(data)
         AllTimersText()
-        AllTimers(timerRecords, deleteTimer = { id-> statsVM.deleteTimer(id)})
+        AllTimers(timerRecords, deleteTimer = deleteTimer)
     }
+
 }
+
 
 @Composable
 fun StatsText() {
@@ -104,13 +114,17 @@ fun VicoChart(data: Map<String, Int>) {
                 .align(Alignment.Center)
         ){
             val modelProducer = remember { CartesianChartModelProducer.build() }
+
+            modelProducer.tryRunTransaction {
+                columnSeries { series(data.values) }
+            }
+
             LaunchedEffect(data) {
                 modelProducer.tryRunTransaction {
-                    columnSeries {
-                        series(data.values)
-                    }
+                    columnSeries { series(data.values) }
                 }
             }
+
             val daysOfWeek = data.keys.toList()
             val bottomAxisValueFormatter =
                 AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _, _ -> daysOfWeek[x.toInt() % daysOfWeek.size] }
@@ -216,14 +230,23 @@ fun AllTimersText() {
 @Composable
 private fun AllTimersPagePreview() {
     ProductivityTimerTheme {
-        AllTimersText()
-    }
-}
-@Preview(apiLevel = 33, showBackground = true)
-@Composable
-private fun VicoChartPreview() {
-    ProductivityTimerTheme {
-        //VicoChart()
-        //DisplayTimer(TimerRecord(3, 6,"123"), timerVM)
+        AllTimersContent(
+            data = mapOf(
+                "S" to 1,
+                "M" to 2,
+                "T" to 3,
+                "W" to 3,
+                "T" to 3,
+                "F" to 3,
+                "S" to 3,
+            ),
+            timerRecords =  listOf(
+                TimerRecord(1, 50, 100),
+                TimerRecord(1, 312, 100),
+                TimerRecord(1, 978, 100),
+            ),
+            deleteTimer =  {}
+
+        )
     }
 }
