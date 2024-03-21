@@ -1,10 +1,12 @@
 package com.example.productivitytimer.ui.views
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -90,4 +92,15 @@ fun CreateTimerPagePreview() {
     ProductivityTimerTheme {
         CreateTimerScreen(startTimer = {})
     }
+}
+
+@Preview(
+    name = "Dark Mode",
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+)
+@Composable
+fun CreateTimerPagePreviewDarkMode() {
+    ProductivityTimerTheme{ Surface{
+            CreateTimerScreen(startTimer = {})
+        } }
 }
