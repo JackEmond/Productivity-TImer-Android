@@ -1,10 +1,12 @@
 package com.example.productivitytimer.ui
 
+import android.content.res.Configuration
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -38,12 +40,14 @@ fun BottomNavBar(navController: NavHostController) {
                 label = {
                     Text(
                         text = item.title,
+                        color = MaterialTheme.colorScheme.primary
                     )
                 },
                 icon = {
                     Icon(
                         item.icon,
                         contentDescription = item.title,
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
             )
@@ -83,5 +87,14 @@ fun getItems(): List<BottomNavItem> {
 private fun BottomNavBarPreview() {
     ProductivityTimerTheme {
         BottomNavBar(navController = rememberNavController())
+    }
+}
+
+@Preview(apiLevel = 33, uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun BottomNavBarPreviewDarkMode() {
+    ProductivityTimerTheme { Surface{
+        BottomNavBar(navController = rememberNavController())
+    }
     }
 }
