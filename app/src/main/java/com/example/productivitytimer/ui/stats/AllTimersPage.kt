@@ -47,14 +47,17 @@ import java.util.Locale
 fun AllTimersPage(
     statsVM: StatsViewModel
 ){
+    val data by statsVM.graphData.observeAsState(initial = emptyMap())
+    val timerRecords by statsVM.getAllTimers().observeAsState(initial = emptyList())
+
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
       ){
         StatsText()
-        VicoChart(statsVM)
+        VicoChart(data)
         AllTimersText()
-        AllTimers(statsVM)
+        AllTimers(timerRecords, deleteTimer = { id-> statsVM.deleteTimer(id)})
     }
 }
 
@@ -75,7 +78,7 @@ fun StatsText() {
 
 
 @Composable
-fun VicoChart(statsVM: StatsViewModel) {
+fun VicoChart(data: Map<String, Int>) {
     Box(modifier = Modifier
         .height(200.dp)
         .fillMaxWidth()) {
@@ -101,15 +104,14 @@ fun VicoChart(statsVM: StatsViewModel) {
                 .align(Alignment.Center)
         ){
             val modelProducer = remember { CartesianChartModelProducer.build() }
-            val data2 by statsVM.graphData.observeAsState(initial = emptyMap())
-            LaunchedEffect(data2) {
+            LaunchedEffect(data) {
                 modelProducer.tryRunTransaction {
                     columnSeries {
-                        series(data2.values)
+                        series(data.values)
                     }
                 }
             }
-            val daysOfWeek = data2.keys.toList()
+            val daysOfWeek = data.keys.toList()
             val bottomAxisValueFormatter =
                 AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _, _ -> daysOfWeek[x.toInt() % daysOfWeek.size] }
             CartesianChartHost(
@@ -135,17 +137,16 @@ fun VicoChart(statsVM: StatsViewModel) {
 }
 
 @Composable
-fun AllTimers(statsVM: StatsViewModel) {
-    val timerRecords by statsVM.getAllTimers().observeAsState(initial = emptyList())
+fun AllTimers(timerRecords: List<TimerRecord>, deleteTimer: (Int) -> Unit) {
     LazyColumn{
         items(timerRecords) { timerRecord ->
-            DisplayTimer(timerRecord, statsVM)
+            DisplayTimer(timerRecord = timerRecord, deleteTimer = {deleteTimer(timerRecord.id)})
         }
     }
 }
 
 @Composable
-fun DisplayTimer(timerRecord: TimerRecord, statsVM: StatsViewModel) {
+fun DisplayTimer(timerRecord: TimerRecord, deleteTimer:() -> Unit) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -165,7 +166,7 @@ fun DisplayTimer(timerRecord: TimerRecord, statsVM: StatsViewModel) {
             )
         }
         Button(
-            onClick = { statsVM.deleteTimer(timerRecord.id) },
+            onClick = deleteTimer,
             shape = RectangleShape
         ) {
             Text(text = "Delete")
