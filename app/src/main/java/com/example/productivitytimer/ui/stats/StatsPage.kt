@@ -16,7 +16,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
@@ -29,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.productivitytimer.ui.timer.TimerRecord
 import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
 import com.patrykandpatrick.vico.compose.axis.horizontal.rememberBottomAxis
@@ -48,7 +48,7 @@ import java.util.Locale
 
 @Composable
 fun StatsPage(
-    statsVM: StatsViewModel
+    statsVM: StatsViewModel = hiltViewModel()
 ){
     val data by statsVM.graphData.observeAsState(initial = emptyMap())
     val timerRecords by statsVM.getAllTimers().observeAsState(initial = emptyList())
@@ -114,19 +114,21 @@ fun VicoChart(data: Map<String, Int>) {
                 .fillMaxWidth(0.9f)
                 .align(Alignment.Center)
         ){
+
+            var daysOfWeek = listOf("a", "b")
+            var values: Collection<Int> = mutableListOf(1, 2)
+
+
+            if(data.isNotEmpty()){
+                daysOfWeek = data.keys.toList()
+                values = data.values
+            }
             val modelProducer = remember { CartesianChartModelProducer.build() }
-
             modelProducer.tryRunTransaction {
-                columnSeries { series(data.values) }
+                    columnSeries { series(values) }
             }
 
-            LaunchedEffect(data) {
-                modelProducer.tryRunTransaction {
-                    columnSeries { series(data.values) }
-                }
-            }
 
-            val daysOfWeek = data.keys.toList()
             val bottomAxisValueFormatter =
                 AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _, _ -> daysOfWeek[x.toInt() % daysOfWeek.size] }
             CartesianChartHost(

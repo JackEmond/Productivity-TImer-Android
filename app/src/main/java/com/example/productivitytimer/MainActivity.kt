@@ -44,13 +44,12 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MyNavController(navController: NavHostController, timerVM: ProductivityTimerViewModel)
 {
-    val statsVM: StatsViewModel = hiltViewModel()
     NavHost(navController = navController, startDestination = "CreateTimerPage") {
         composable("CreateTimerPage") {
             CreateTimerPage( navigateToTimerPage = {navController.navigate("TimerPage")}, timerVM) }
         composable("TimerPage") {
             TimerPage(navigateToCreateTimerPage = {navController.navigate("CreateTimerPage")}, timerVM) }
-        composable("AllTimersPage") { StatsPage(statsVM) }
+        composable("AllTimersPage") { StatsPage() }
         composable("InfoPage") { InfoPage() }
     }
 }
