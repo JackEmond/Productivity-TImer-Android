@@ -7,9 +7,13 @@ import androidx.lifecycle.viewModelScope
 import com.example.productivitytimer.data.ProductivityTimerDBRepository
 import com.example.productivitytimer.data.RunningTimerRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -24,7 +28,7 @@ data class TimerRecord(
 @HiltViewModel
 class ProductivityTimerViewModel @Inject constructor(
     private val repository: ProductivityTimerDBRepository,
-    runningTimerRepository: RunningTimerRepository
+    private val runningTimerRepository: RunningTimerRepository
 ): ViewModel() {
     private val _time = MutableStateFlow(-1) // Time in seconds
     val time: StateFlow<Int> = _time
@@ -32,12 +36,30 @@ class ProductivityTimerViewModel @Inject constructor(
     private val _timerPaused = MutableLiveData(false)
     val timerPaused: LiveData<Boolean> = _timerPaused
 
-    private val timer = ProductivityTimer(scope = viewModelScope, _time = _time, _timerPaused = _timerPaused, repository = runningTimerRepository)
-
-
     init {
-        timer.setTime()
+        setTime()
     }
+
+    private fun setTime(){
+        viewModelScope.launch {
+            val liveData = runningTimerRepository.getTimerData()
+            _time.value = liveData.time
+            _timerPaused.value = liveData.isPaused
+        }
+    }
+
+    fun startTimer(){
+        viewModelScope.launch {
+            val liveData = runningTimerRepository.getTimerData()
+            _time.value = liveData.time
+            _timerPaused.value = liveData.isPaused
+
+            if (!timerIsPaused() && job?.isActive != true) {
+                startIncrementingTime()
+            }
+        }
+    }
+
 
     val formattedTime: StateFlow<String> = _time.map { timeInSeconds ->
         formatTime(timeInSeconds)
@@ -50,18 +72,16 @@ class ProductivityTimerViewModel @Inject constructor(
         return String.format("%02dHRS %02dMIN %02dSEC", hours, minutes, seconds)
     }
 
-
-    fun startTimer(){
-        timer.start()
-    }
-
     fun pauseOrResumeTimer() {
-        timer.pauseOrResume()
+        if(timerIsPaused())
+            resumeTimer()
+        else
+            pauseTimer()
     }
 
     fun saveTimer(){
         val timeRan = time.value
-        timer.resetTimer()
+        resetTimer()
         insertIntoDB(timeRan)
 
     }
@@ -73,14 +93,69 @@ class ProductivityTimerViewModel @Inject constructor(
     }
 
     fun cancelTimer(){
-        timer.resetTimer()
+        resetTimer()
     }
 
 
     fun startTimerInitial() {
-        timer.initialStart()
+        initialStart()
     }
 
+    private var job: Job? = null
+
+    private fun initialStart() {
+        viewModelScope.launch {
+            runningTimerRepository.resumeTimer()
+        }
+        startTimer()
+    }
+
+    private fun timerIsPaused(): Boolean{
+        return _timerPaused.value == true
+    }
+    private fun timerFlow(startFrom: Int): Flow<Int> = flow {
+        var time = startFrom
+        while (true) {
+            emit(time)
+            time += 1
+            delay(1000L)
+        }
+    }
+
+    private fun startIncrementingTime() {
+        job?.cancel()
+        job = viewModelScope.launch {
+            timerFlow(_time.value).collect { currentTime ->
+                _time.value = currentTime
+            }
+        }
+    }
+
+    private fun pauseTimer(){
+        _timerPaused.value = true
+        job?.cancel()
+        viewModelScope.launch {
+            runningTimerRepository.timerPaused(_time.value)
+        }
+    }
+
+    private fun resumeTimer() {
+        _timerPaused.value = false
+        startIncrementingTime()
+
+        viewModelScope.launch {
+            runningTimerRepository.resumeTimer()
+        }
+    }
+
+    private fun resetTimer(){
+        job?.cancel()
+        _time.value = 0
+        _timerPaused.value = true
+        viewModelScope.launch {
+            runningTimerRepository.resetTimer()
+        }
+    }
 
 
 }
