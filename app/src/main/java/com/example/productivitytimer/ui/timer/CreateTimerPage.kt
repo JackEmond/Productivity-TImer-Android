@@ -27,9 +27,21 @@ fun CreateTimerPage(
     navigateToTimerPage: () -> Unit,
     timerVM: ProductivityTimerViewModel
 ) {
-    NavigatedToTimerIfRunning(timerVM = timerVM, navigateToTimerPage = navigateToTimerPage)
-    CreateTimerScreen(startTimer = {timerVM.startTimerInitial()})
+    val timerRunning = timerVM.isTimerRunning.collectAsState().value
+    LaunchedEffect(timerRunning) {
+        if (timerRunning) {
+            navigateToTimerPage()
+        }
+    }
+
+    CreateTimerScreen(
+        startTimer = {
+            timerVM.startTimerInitial()
+            navigateToTimerPage()
+
+    })
 }
+
 
 @Composable
 fun CreateTimerScreen(startTimer: () -> Unit) {
@@ -43,20 +55,6 @@ fun CreateTimerScreen(startTimer: () -> Unit) {
         SubmitButton(startTimer)
     }
 }
-
-@Composable
-fun NavigatedToTimerIfRunning(
-    timerVM: ProductivityTimerViewModel,
-    navigateToTimerPage: () -> Unit
-) {
-    val time = timerVM.time.collectAsState().value
-    LaunchedEffect(time) {
-        if (time > 0) {
-            navigateToTimerPage()
-        }
-    }
-}
-
 
 @Composable
 fun CreateProductivityTimerText(){

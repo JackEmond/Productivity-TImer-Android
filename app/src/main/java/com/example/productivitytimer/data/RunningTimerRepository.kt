@@ -17,6 +17,7 @@ private object RunningTimerKeys {
     val ELAPSED_TIME = intPreferencesKey("elapsed_time") //However long the timer ran before it was paused (if timer was never paused this is zero)
     val TIMER_START_TIME = longPreferencesKey("time_running") //The time the active timer has currently ran for (if the timer is paused this is zero)
     val TIMER_PAUSED = booleanPreferencesKey("timer_paused")
+    val TIMER_RUNNING = booleanPreferencesKey("timer_running")
 
 }
 data class RunningTimerData(
@@ -35,7 +36,6 @@ class RunningTimerRepository  @Inject constructor(
     private fun mapPreferences(preferences: Preferences): RunningTimerData {
         val timerStartTime = preferences[RunningTimerKeys.TIMER_START_TIME] ?: 0L
         val elapsedTime = preferences[RunningTimerKeys.ELAPSED_TIME] ?: 0
-
         val timerPaused = preferences[RunningTimerKeys.TIMER_PAUSED] ?: false
 
         val time =
@@ -66,6 +66,8 @@ class RunningTimerRepository  @Inject constructor(
             preferences[RunningTimerKeys.ELAPSED_TIME] = 0
             preferences[RunningTimerKeys.TIMER_PAUSED] = false
             preferences[RunningTimerKeys.TIMER_START_TIME] = 0L
+            preferences[RunningTimerKeys.TIMER_RUNNING] = false
+
 
     }
 
@@ -73,6 +75,13 @@ class RunningTimerRepository  @Inject constructor(
         preferences ->
             preferences[RunningTimerKeys.TIMER_PAUSED] = false
             preferences[RunningTimerKeys.TIMER_START_TIME] = System.currentTimeMillis()
+            preferences[RunningTimerKeys.TIMER_RUNNING] = true
+
 
     }
+
+    suspend fun isTimerRunning(): Boolean {
+        return dataStore.data.first()[RunningTimerKeys.TIMER_RUNNING] ?: false
+    }
+
 }
