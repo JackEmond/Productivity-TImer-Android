@@ -29,30 +29,47 @@ class StatsViewModel @Inject constructor(
         }
     }
 
-    private val _graphData = MutableLiveData<Map<String, Int>>()
-    val graphData: LiveData<Map<String, Int>> = _graphData
+    private val _graphData = MutableLiveData<Map<String, Float>>()
+    val graphData: LiveData<Map<String, Float>> = _graphData
 
 
-    private fun transformCurrWeekOfTimersToGraphData(timeRanEachDay: List<TimerRecordDao.TimeRanEachDay>): Map<String, Int> {
+    private fun transformCurrWeekOfTimersToGraphData(timeRanEachDay: List<TimerRecordDao.TimeRanEachDay>): Map<String, Float> {
 
-        val map = mutableMapOf<String,Int>()
+        val map = mutableMapOf<String,Float>()
 
         val currDay  = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
         val daysOfTheWeek = arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
 
         for (i in currDay until daysOfTheWeek.size) {
-            map[daysOfTheWeek[i]] = 0
+            map[daysOfTheWeek[i]] = 0F
         }
         for (i in 0 until currDay) {
-            map[daysOfTheWeek[i]] = 0
+            map[daysOfTheWeek[i]] = 0F
         }
+
+        var maxTime = 0
+        for (t in timeRanEachDay) {
+            if (t.sumTime > maxTime) maxTime = t.sumTime
+        }
+
 
         for (t in timeRanEachDay) {
             val dayOfWeek = covertDayOfWeekFromIntToString(t.dayOfWeek)
-            map[dayOfWeek] = map[dayOfWeek]?.plus(t.sumTime) ?: t.sumTime
+            val time = convertTimeToCorrectFormat(t.sumTime, maxTime = maxTime)
+            map[dayOfWeek] = map[dayOfWeek]?.plus(time) ?: time
         }
 
         return map
+    }
+
+    private fun convertTimeToCorrectFormat(time: Int, maxTime:Int): Float {
+        return if(maxTime < 60){
+            time.toFloat()
+        } else if(maxTime < 3600){
+            time.toFloat() / 60
+        } else{
+            time.toFloat() / 3600
+        }
     }
 
     private fun covertDayOfWeekFromIntToString(dayOfWeek: String): String {

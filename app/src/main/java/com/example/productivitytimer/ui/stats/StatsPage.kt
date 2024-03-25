@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
@@ -60,7 +61,7 @@ fun StatsPage(
 }
 
 @Composable
-fun StatsPageContent(data: Map<String, Int>, timerRecords: List<TimerRecord>, deleteTimer:(Int) -> Unit) {
+fun StatsPageContent(data: Map<String, Float>, timerRecords: List<TimerRecord>, deleteTimer:(Int) -> Unit) {
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
@@ -87,9 +88,8 @@ fun StatsText() {
     )
 }
 
-
 @Composable
-fun VicoChart(data: Map<String, Int>) {
+fun VicoChart(data: Map<String, Float>) {
     Box(modifier = Modifier
         .height(200.dp)
         .fillMaxWidth()) {
@@ -115,17 +115,24 @@ fun VicoChart(data: Map<String, Int>) {
                 .align(Alignment.Center)
         ){
 
-            var daysOfWeek = listOf("a", "b")
-            var values: Collection<Int> = mutableListOf(1, 2)
+            var daysOfWeek = listOf("Sun", "Mon", "Tue","Wed", "Thu","Fri", "Sat")
+            var values: Collection<Float> = listOf(1F, 2F, 3F,4F,5F,6F,7F)
 
 
             if(data.isNotEmpty()){
                 daysOfWeek = data.keys.toList()
                 values = data.values
             }
+
             val modelProducer = remember { CartesianChartModelProducer.build() }
             modelProducer.tryRunTransaction {
+                columnSeries { series(values) }
+            }
+
+            LaunchedEffect(data){
+                modelProducer.tryRunTransaction {
                     columnSeries { series(values) }
+                }
             }
 
 
@@ -134,17 +141,18 @@ fun VicoChart(data: Map<String, Int>) {
             CartesianChartHost(
                 rememberCartesianChart(
                     rememberColumnCartesianLayer(
-                        listOf(
+                        columns = listOf(
                             rememberLineComponent(
                                 color = Color.Black,
                                 thickness = 12.dp,
                                 shape = Shapes.roundedCornerShape(allPercent = 40),
-                            )
+                            ),
+
                         )
                     ),
                     startAxis = rememberStartAxis(),
                     bottomAxis = rememberBottomAxis(
-                        valueFormatter = bottomAxisValueFormatter
+                    valueFormatter = bottomAxisValueFormatter
                     ),
                 ),
                 modelProducer,
@@ -235,13 +243,13 @@ private fun StatsPagePreview() {
     ProductivityTimerTheme {
         StatsPageContent(
             data = mapOf(
-                "S" to 1,
-                "M" to 2,
-                "T" to 3,
-                "W" to 3,
-                "T" to 3,
-                "F" to 4,
-                "S" to 3,
+                "Sun" to 1f,
+                "Mon" to 2f,
+                "Tue" to 9f,
+                "Wed" to 3f,
+                "Thu" to 3f,
+                "Fri" to 4f,
+                "Sat" to 3f,
             ),
             timerRecords =  listOf(
                 TimerRecord(1, 50, 100),
@@ -260,13 +268,13 @@ private fun StatsPagePreviewDarkMode() {
     ProductivityTimerTheme { Surface{
         StatsPageContent(
             data = mapOf(
-                "S" to 1,
-                "M" to 2,
-                "T" to 3,
-                "W" to 3,
-                "T" to 3,
-                "F" to 4,
-                "S" to 3,
+                "S" to 1f,
+                "M" to 2f,
+                "T" to 3f,
+                "W" to 3f,
+                "T" to 3f,
+                "F" to 4f,
+                "S" to 3f,
             ),
             timerRecords =  listOf(
                 TimerRecord(1, 50, 100),
