@@ -63,10 +63,10 @@ class RunningTimerRepository  @Inject constructor(
 
     suspend fun resetTimer() = dataStore.edit {
         preferences ->
+            preferences[RunningTimerKeys.TIMER_RUNNING] = false
             preferences[RunningTimerKeys.ELAPSED_TIME] = 0
             preferences[RunningTimerKeys.TIMER_PAUSED] = false
             preferences[RunningTimerKeys.TIMER_START_TIME] = 0L
-            preferences[RunningTimerKeys.TIMER_RUNNING] = false
 
 
     }
@@ -77,11 +77,6 @@ class RunningTimerRepository  @Inject constructor(
             preferences[RunningTimerKeys.TIMER_START_TIME] = System.currentTimeMillis()
             preferences[RunningTimerKeys.TIMER_RUNNING] = true
 
-
-    }
-
-    suspend fun isTimerRunning(): Boolean {
-        return dataStore.data.first()[RunningTimerKeys.TIMER_RUNNING] ?: false
     }
 
 }

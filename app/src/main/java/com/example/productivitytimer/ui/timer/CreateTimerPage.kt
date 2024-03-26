@@ -9,8 +9,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -25,23 +23,12 @@ import com.example.productivitytimer.ui.theme.ProductivityTimerTheme
 @Composable
 fun CreateTimerPage(
     navigateToTimerPage: () -> Unit,
-    timerVM: ProductivityTimerViewModel
 ) {
-    val timerRunning = timerVM.isTimerRunning.collectAsState().value
-    LaunchedEffect(timerRunning) {
-        if (timerRunning) {
-            navigateToTimerPage()
-        }
-    }
-
     CreateTimerScreen(
         startTimer = {
-            timerVM.startTimerInitial()
             navigateToTimerPage()
-
     })
 }
-
 
 @Composable
 fun CreateTimerScreen(startTimer: () -> Unit) {

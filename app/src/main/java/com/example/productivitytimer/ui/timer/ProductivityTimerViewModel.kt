@@ -32,22 +32,13 @@ class ProductivityTimerViewModel @Inject constructor(
 ): ViewModel() {
 
     private val _time = MutableStateFlow(-1) // Time in seconds
-
-    private val _timerRunning = MutableStateFlow(false) // Time in seconds
-    val isTimerRunning: StateFlow<Boolean> = _timerRunning
+    val time: StateFlow<Int> = _time
 
     private val _timerPaused = MutableLiveData(false)
     val timerPaused: LiveData<Boolean> = _timerPaused
 
     init {
-        isTimerRunning()
         setTime()
-    }
-
-    private fun isTimerRunning() {
-        viewModelScope.launch {
-            _timerRunning.value =  runningTimerRepository.isTimerRunning()
-        }
     }
 
     private fun setTime(){
@@ -106,19 +97,7 @@ class ProductivityTimerViewModel @Inject constructor(
         resetTimer()
     }
 
-
-    fun startTimerInitial() {
-        initialStart()
-    }
-
     private var job: Job? = null
-
-    private fun initialStart() {
-        viewModelScope.launch {
-            runningTimerRepository.resumeTimer()
-        }
-        startTimer()
-    }
 
     private fun timerIsPaused(): Boolean{
         return _timerPaused.value == true
@@ -159,7 +138,6 @@ class ProductivityTimerViewModel @Inject constructor(
     }
 
     private fun resetTimer(){
-        _timerRunning.value = false
         job?.cancel()
         _time.value = 0
         _timerPaused.value = true
