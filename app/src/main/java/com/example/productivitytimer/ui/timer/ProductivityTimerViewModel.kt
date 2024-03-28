@@ -49,7 +49,17 @@ class ProductivityTimerViewModel @Inject constructor(
         }
     }
 
+
     fun startTimer(){
+        if(_timerPaused.value == false){
+            if(timerHasntStarted()){
+                viewModelScope.launch {
+                    runningTimerRepository.resumeTimer()
+                }
+            }
+            startIncrementingTime()
+        }
+
         viewModelScope.launch {
             val liveData = runningTimerRepository.getTimerData()
             _time.value = liveData.time
@@ -59,6 +69,10 @@ class ProductivityTimerViewModel @Inject constructor(
                 startIncrementingTime()
             }
         }
+    }
+
+    private fun timerHasntStarted(): Boolean {
+        return _time.value == 0
     }
 
 
