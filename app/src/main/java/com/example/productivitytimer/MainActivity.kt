@@ -32,21 +32,25 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            val timerViewModel: ProductivityTimerViewModel = hiltViewModel()
-            val navController = rememberNavController()
             ProductivityTimerTheme {
-                Scaffold(
-                    bottomBar = {
-                        BottomNavBar(navController)
-                    }
-                ) {
-                    MyNavController(navController = navController, timerVM = timerViewModel)
-                }
+                MyApp()
             }
         }
     }
 }
+@Composable
+fun MyApp(){
+    val timerViewModel: ProductivityTimerViewModel = hiltViewModel()
+    val navController = rememberNavController()
+    Scaffold(
+        bottomBar = {
+            BottomNavBar(navController)
+        }
+    ) {
+        MyNavController(navController = navController, timerVM = timerViewModel)
+    }
 
+}
 
 @Composable
 fun MyNavController(navController: NavHostController, timerVM: ProductivityTimerViewModel)

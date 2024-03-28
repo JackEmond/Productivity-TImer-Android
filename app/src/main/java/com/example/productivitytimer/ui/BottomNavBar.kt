@@ -71,7 +71,7 @@ fun getItems(): List<BottomNavItem> {
         ),
         BottomNavItem(
             title = "Timer",
-            navigation ="CreateTimerPage",
+            navigation ="DetermineTimerPage",
             icon = painterResource(id = R.drawable.timer)
         ),
         BottomNavItem(
