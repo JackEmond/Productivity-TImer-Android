@@ -22,7 +22,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -65,6 +64,7 @@ fun StatsPageContent(data: Map<String, Float>, timerRecords: List<TimerRecord>, 
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
+            .background(MaterialTheme.colorScheme.secondary)
     ){
         StatsText()
         VicoChart(data)
@@ -110,7 +110,7 @@ fun VicoChart(data: Map<String, Float>) {
             // This box will fill the bottom half of the container
         Box(
             modifier = Modifier
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.secondary)
                 .fillMaxWidth(0.9f)
                 .align(Alignment.Center)
         ){
@@ -143,7 +143,7 @@ fun VicoChart(data: Map<String, Float>) {
                     rememberColumnCartesianLayer(
                         columns = listOf(
                             rememberLineComponent(
-                                color = Color.Black,
+                                color = MaterialTheme.colorScheme.primary,
                                 thickness = 12.dp,
                                 shape = Shapes.roundedCornerShape(allPercent = 40),
                             ),
