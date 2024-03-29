@@ -18,15 +18,15 @@ import androidx.core.view.WindowCompat
 
 private val DarkColorScheme = darkColorScheme(
     primary = Color.White,
-    secondary = Color.Black,
+    secondary = backgroundBlack,
     tertiary = Color.Yellow,
-   onPrimary = Color.Black,
+   onPrimary = backgroundBlack,
    onSecondary = Color.Green,
    onTertiary = Color.Green,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color.Black,
+    primary = backgroundBlack,
     secondary = Color.White,
     tertiary = Color.Blue
 
@@ -35,7 +35,6 @@ private val LightColorScheme = lightColorScheme(
 @Composable
 fun ProductivityTimerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
