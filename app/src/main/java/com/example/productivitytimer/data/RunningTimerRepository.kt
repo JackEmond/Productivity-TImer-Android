@@ -34,9 +34,13 @@ class RunningTimerRepository  @Inject constructor(
     )
 
     private fun mapPreferences(preferences: Preferences): RunningTimerData {
+        val timerRunning = preferences[RunningTimerKeys.TIMER_RUNNING] ?: true
+
+        if (!timerRunning) return RunningTimerData(time = 0, isPaused = false)
+
+        val timerPaused = preferences[RunningTimerKeys.TIMER_PAUSED] ?: false
         val timerStartTime = preferences[RunningTimerKeys.TIMER_START_TIME] ?: 0L
         val elapsedTime = preferences[RunningTimerKeys.ELAPSED_TIME] ?: 0
-        val timerPaused = preferences[RunningTimerKeys.TIMER_PAUSED] ?: false
 
         val time =
             if(timerPaused || timerStartTime == 0L){
@@ -67,8 +71,6 @@ class RunningTimerRepository  @Inject constructor(
             preferences[RunningTimerKeys.ELAPSED_TIME] = 0
             preferences[RunningTimerKeys.TIMER_PAUSED] = false
             preferences[RunningTimerKeys.TIMER_START_TIME] = 0L
-
-
     }
 
     suspend fun resumeTimer() = dataStore.edit {
