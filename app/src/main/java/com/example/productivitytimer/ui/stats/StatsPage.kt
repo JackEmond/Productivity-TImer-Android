@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -116,7 +117,7 @@ fun VicoChart(data: Map<String, Float>) {
         ){
 
             var daysOfWeek = listOf("Sun", "Mon", "Tue","Wed", "Thu","Fri", "Sat")
-            var values: Collection<Float> = listOf(1F, 2F, 3F,4F,5F,6F,7F)
+            var values: Collection<Float> = listOf(0F, 0F, 0F, 0F,0F,0F,0F)
 
 
             if(data.isNotEmpty()){
@@ -125,8 +126,11 @@ fun VicoChart(data: Map<String, Float>) {
             }
 
             val modelProducer = remember { CartesianChartModelProducer.build() }
-            modelProducer.tryRunTransaction {
-                columnSeries { series(values) }
+
+            if (LocalInspectionMode.current) {
+                modelProducer.tryRunTransaction {
+                    columnSeries { series(values) }
+                }
             }
 
             LaunchedEffect(data){
@@ -268,13 +272,13 @@ private fun StatsPagePreviewDarkMode() {
     ProductivityTimerTheme { Surface{
         StatsPageContent(
             data = mapOf(
-                "S" to 1f,
-                "M" to 2f,
-                "T" to 3f,
-                "W" to 3f,
-                "T" to 3f,
-                "F" to 4f,
-                "S" to 3f,
+                "Sun" to 1f,
+                "Mon" to 2f,
+                "Tue" to 9f,
+                "Wed" to 3f,
+                "Thu" to 3f,
+                "Fri" to 4f,
+                "Sat" to 3f,
             ),
             timerRecords =  listOf(
                 TimerRecord(1, 50, 100),
