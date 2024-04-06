@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -37,9 +36,8 @@ import com.patrykandpatrick.vico.compose.axis.vertical.rememberStartAxis
 import com.patrykandpatrick.vico.compose.chart.CartesianChartHost
 import com.patrykandpatrick.vico.compose.chart.layer.rememberColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.chart.rememberCartesianChart
+import com.patrykandpatrick.vico.compose.chart.scroll.rememberVicoScrollState
 import com.patrykandpatrick.vico.compose.component.rememberLineComponent
-import com.patrykandpatrick.vico.core.axis.AxisPosition
-import com.patrykandpatrick.vico.core.axis.formatter.AxisValueFormatter
 import com.patrykandpatrick.vico.core.component.shape.Shapes
 import com.patrykandpatrick.vico.core.model.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.model.columnSeries
@@ -91,59 +89,42 @@ fun StatsText() {
 
 @Composable
 fun VicoChart(data: Map<String, Float>) {
-    Box(modifier = Modifier
-        .height(200.dp)
-        .fillMaxWidth()) {
-        Column(modifier = Modifier.matchParentSize()) {
-            Box(
+    Box(modifier = Modifier.fillMaxWidth()) { //This allows the background and foreground to be separate
+        Column(modifier = Modifier.matchParentSize()) { // This is the background
+            Box( // This is the background of the top half of the graph
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
+                    .weight(1f).fillMaxWidth()
                     .background(MaterialTheme.colorScheme.primary)
             )
-            Box(
+            Box( // This is the background of the bottom half of the graph
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
+                    .weight(1f).fillMaxWidth()
                     .background(MaterialTheme.colorScheme.secondary)
             )
         }
-            // This box will fill the bottom half of the container
-        Box(
+        Box( //This  is the graph
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.secondary)
                 .fillMaxWidth(0.9f)
                 .align(Alignment.Center)
         ){
+            //This should all be moved to view model
+            val daysOfWeek = data.keys.toList()
+            val values = data.values
 
-            var daysOfWeek = listOf("Sun", "Mon", "Tue","Wed", "Thu","Fri", "Sat")
-            var values: Collection<Float> = listOf(0F, 0F, 0F, 0F,0F,0F,0F)
-
-
-            if(data.isNotEmpty()){
-                daysOfWeek = data.keys.toList()
-                values = data.values
-            }
-
+            //Set up model producer
             val modelProducer = remember { CartesianChartModelProducer.build() }
-
             if (LocalInspectionMode.current) {
-                modelProducer.tryRunTransaction {
-                    columnSeries { series(values) }
-                }
+                modelProducer.tryRunTransaction { columnSeries { series(values) } }
             }
-
             LaunchedEffect(data){
-                modelProducer.tryRunTransaction {
-                    columnSeries { series(values) }
-                }
+                modelProducer.tryRunTransaction { columnSeries { series(values) } }
             }
 
-
-            val bottomAxisValueFormatter =
-                AxisValueFormatter<AxisPosition.Horizontal.Bottom> { x, _, _ -> daysOfWeek[x.toInt() % daysOfWeek.size] }
+            //Display the Graph
             CartesianChartHost(
-                rememberCartesianChart(
+                scrollState = rememberVicoScrollState(scrollEnabled = true),
+                chart = rememberCartesianChart(
                     rememberColumnCartesianLayer(
                         columns = listOf(
                             rememberLineComponent(
@@ -151,15 +132,14 @@ fun VicoChart(data: Map<String, Float>) {
                                 thickness = 12.dp,
                                 shape = Shapes.roundedCornerShape(allPercent = 40),
                             ),
-
                         )
                     ),
                     startAxis = rememberStartAxis(),
                     bottomAxis = rememberBottomAxis(
-                    valueFormatter = bottomAxisValueFormatter
+                    valueFormatter = { x, _, _ -> daysOfWeek[x.toInt() % daysOfWeek.size] }
                     ),
                 ),
-                modelProducer,
+                modelProducer =  modelProducer,
             )
         }
     }
@@ -247,7 +227,11 @@ private fun StatsPagePreview() {
     ProductivityTimerTheme {
         StatsPageContent(
             data = mapOf(
-                "Sun" to 1f,
+                "n" to 1f,
+                "1" to 1f,
+                "2" to 1f,
+                "3" to 1f,
+                "4" to 1f,
                 "Mon" to 2f,
                 "Tue" to 9f,
                 "Wed" to 3f,

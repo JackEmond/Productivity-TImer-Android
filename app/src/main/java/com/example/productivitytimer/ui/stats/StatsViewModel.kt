@@ -28,8 +28,7 @@ class StatsViewModel @Inject constructor(
             }
         }
     }
-
-    private val _graphData = MutableLiveData<Map<String, Float>>()
+    private val _graphData = MutableLiveData(mapOf("1" to 0f))
     val graphData: LiveData<Map<String, Float>> = _graphData
 
 
