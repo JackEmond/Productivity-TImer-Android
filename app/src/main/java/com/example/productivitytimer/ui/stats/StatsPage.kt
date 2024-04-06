@@ -107,42 +107,42 @@ fun VicoChart(data: Map<String, Float>) {
                 .background(MaterialTheme.colorScheme.secondary)
                 .fillMaxWidth(0.9f)
                 .align(Alignment.Center)
-        ){
-            //This should all be moved to view model
-            val daysOfWeek = data.keys.toList()
-            val values = data.values
-
-            //Set up model producer
-            val modelProducer = remember { CartesianChartModelProducer.build() }
-            if (LocalInspectionMode.current) {
-                modelProducer.tryRunTransaction { columnSeries { series(values) } }
-            }
-            LaunchedEffect(data){
-                modelProducer.tryRunTransaction { columnSeries { series(values) } }
-            }
-
-            //Display the Graph
-            CartesianChartHost(
-                scrollState = rememberVicoScrollState(scrollEnabled = true),
-                chart = rememberCartesianChart(
-                    rememberColumnCartesianLayer(
-                        columns = listOf(
-                            rememberLineComponent(
-                                color = MaterialTheme.colorScheme.primary,
-                                thickness = 12.dp,
-                                shape = Shapes.roundedCornerShape(allPercent = 40),
-                            ),
-                        )
-                    ),
-                    startAxis = rememberStartAxis(),
-                    bottomAxis = rememberBottomAxis(
-                    valueFormatter = { x, _, _ -> daysOfWeek[x.toInt() % daysOfWeek.size] }
-                    ),
-                ),
-                modelProducer =  modelProducer,
-            )
+        ) {
+            StatsGraph(data)
         }
     }
+}
+
+@Composable
+fun StatsGraph(data: Map<String, Float>) {
+    val daysOfWeek = data.keys.toList()
+    val values = data.values
+
+    //Set up model producer
+    val modelProducer = remember { CartesianChartModelProducer.build() }
+    if (LocalInspectionMode.current) {  modelProducer.tryRunTransaction { columnSeries { series(values) } } }
+    LaunchedEffect(data){ modelProducer.tryRunTransaction { columnSeries { series(values) } } }
+
+    //Display the Graph
+    CartesianChartHost(
+        scrollState = rememberVicoScrollState(scrollEnabled = true),
+        chart = rememberCartesianChart(
+            rememberColumnCartesianLayer(
+                columns = listOf(
+                    rememberLineComponent(
+                        color = MaterialTheme.colorScheme.primary,
+                        thickness = 12.dp,
+                        shape = Shapes.roundedCornerShape(allPercent = 40),
+                    ),
+                )
+            ),
+            startAxis = rememberStartAxis(),
+            bottomAxis = rememberBottomAxis(
+                valueFormatter = { x, _, _ -> daysOfWeek[x.toInt() % daysOfWeek.size] }
+            ),
+        ),
+        modelProducer =  modelProducer,
+    )
 }
 
 @Composable
