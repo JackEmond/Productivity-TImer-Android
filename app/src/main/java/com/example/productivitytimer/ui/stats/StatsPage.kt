@@ -1,6 +1,7 @@
 package com.example.productivitytimer.ui.stats
 
 import android.content.res.Configuration
+import android.text.Layout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -37,8 +38,11 @@ import com.patrykandpatrick.vico.compose.chart.CartesianChartHost
 import com.patrykandpatrick.vico.compose.chart.layer.rememberColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.chart.rememberCartesianChart
 import com.patrykandpatrick.vico.compose.chart.scroll.rememberVicoScrollState
+import com.patrykandpatrick.vico.compose.component.marker.rememberMarkerComponent
 import com.patrykandpatrick.vico.compose.component.rememberLineComponent
+import com.patrykandpatrick.vico.core.chart.layer.ColumnCartesianLayer
 import com.patrykandpatrick.vico.core.component.shape.Shapes
+import com.patrykandpatrick.vico.core.component.text.TextComponent
 import com.patrykandpatrick.vico.core.model.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.model.columnSeries
 import java.text.SimpleDateFormat
@@ -62,7 +66,8 @@ fun StatsPage(
 fun StatsPageContent(data: Map<String, Float>, timerRecords: List<TimerRecord>, deleteTimer:(Int) -> Unit) {
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier
+            .fillMaxWidth()
             .background(MaterialTheme.colorScheme.secondary)
     ){
         StatsText()
@@ -93,12 +98,14 @@ fun VicoChart(data: Map<String, Float>) {
         Column(modifier = Modifier.matchParentSize()) { // This is the background
             Box( // This is the background of the top half of the graph
                 modifier = Modifier
-                    .weight(1f).fillMaxWidth()
+                    .weight(1f)
+                    .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.primary)
             )
             Box( // This is the background of the bottom half of the graph
                 modifier = Modifier
-                    .weight(1f).fillMaxWidth()
+                    .weight(1f)
+                    .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.secondary)
             )
         }
@@ -123,12 +130,17 @@ fun StatsGraph(data: Map<String, Float>) {
     if (LocalInspectionMode.current) {  modelProducer.tryRunTransaction { columnSeries { series(values) } } }
     LaunchedEffect(data){ modelProducer.tryRunTransaction { columnSeries { series(values) } } }
 
+    val myLabel = TextComponent.build {
+        textSizeSp = 16f
+        textAlignment = Layout.Alignment.ALIGN_CENTER
+    }
+
     //Display the Graph
     CartesianChartHost(
         scrollState = rememberVicoScrollState(scrollEnabled = true),
         chart = rememberCartesianChart(
             rememberColumnCartesianLayer(
-                columns = listOf(
+                ColumnCartesianLayer.ColumnProvider.series(
                     rememberLineComponent(
                         color = MaterialTheme.colorScheme.primary,
                         thickness = 12.dp,
@@ -142,6 +154,7 @@ fun StatsGraph(data: Map<String, Float>) {
             ),
         ),
         modelProducer =  modelProducer,
+        marker = rememberMarkerComponent(label =  myLabel),
     )
 }
 
