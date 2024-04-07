@@ -1,5 +1,6 @@
 package com.example.productivitytimer.ui.stats
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.productivitytimer.data.ProductivityTimerDBRepository
 import com.example.productivitytimer.data.local.TimerRecordDao
 import com.example.productivitytimer.ui.timer.TimerRecord
+import com.patrykandpatrick.vico.core.marker.Marker
+import com.patrykandpatrick.vico.core.marker.MarkerVisibilityChangeListener
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.Calendar
@@ -57,8 +60,23 @@ class StatsViewModel @Inject constructor(
             val time = convertTimeToCorrectFormat(t.sumTime, maxTime = maxTime)
             map[dayOfWeek] = map[dayOfWeek]?.plus(time) ?: time
         }
-
         return map
+    }
+
+    val markerVisibilityChangeListener = object : MarkerVisibilityChangeListener {
+        override fun onMarkerShown(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {
+            markerEntryModels.forEach { entryModel ->
+                Log.d("MarkerVisibility", "Marker shown with index: ${entryModel.index}")
+            }
+        }
+
+        override fun onMarkerHidden(marker: Marker) {
+            // Handle marker being hidden, if needed
+        }
+
+        override fun onMarkerMoved(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {
+            // Optional: Handle marker movement
+        }
     }
 
     private fun convertTimeToCorrectFormat(time: Int, maxTime:Int): Float {

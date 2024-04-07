@@ -43,6 +43,8 @@ import com.patrykandpatrick.vico.compose.component.rememberLineComponent
 import com.patrykandpatrick.vico.core.chart.layer.ColumnCartesianLayer
 import com.patrykandpatrick.vico.core.component.shape.Shapes
 import com.patrykandpatrick.vico.core.component.text.TextComponent
+import com.patrykandpatrick.vico.core.marker.Marker
+import com.patrykandpatrick.vico.core.marker.MarkerVisibilityChangeListener
 import com.patrykandpatrick.vico.core.model.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.model.columnSeries
 import java.text.SimpleDateFormat
@@ -58,12 +60,18 @@ fun StatsPage(
     StatsPageContent(
         data = data,
         timerRecords = timerRecords,
-        deleteTimer = { id-> statsVM.deleteTimer(id)}
-    )
+        deleteTimer = { id-> statsVM.deleteTimer(id)},
+        markerVisibilityChangeListener = statsVM.markerVisibilityChangeListener,
+        )
 }
 
 @Composable
-fun StatsPageContent(data: Map<String, Float>, timerRecords: List<TimerRecord>, deleteTimer:(Int) -> Unit) {
+fun StatsPageContent(
+    data: Map<String, Float>,
+    timerRecords: List<TimerRecord>,
+    deleteTimer: (Int) -> Unit,
+    markerVisibilityChangeListener: MarkerVisibilityChangeListener,
+    ) {
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -71,7 +79,7 @@ fun StatsPageContent(data: Map<String, Float>, timerRecords: List<TimerRecord>, 
             .background(MaterialTheme.colorScheme.secondary)
     ){
         StatsText()
-        VicoChart(data)
+        VicoChart(data, markerVisibilityChangeListener)
         AllTimersText()
         AllTimers(timerRecords, deleteTimer = deleteTimer)
     }
@@ -93,7 +101,10 @@ fun StatsText() {
 }
 
 @Composable
-fun VicoChart(data: Map<String, Float>) {
+fun VicoChart(
+    data: Map<String, Float>,
+    markerVisibilityChangeListener: MarkerVisibilityChangeListener
+) {
     Box(modifier = Modifier.fillMaxWidth()) { //This allows the background and foreground to be separate
         Column(modifier = Modifier.matchParentSize()) { // This is the background
             Box( // This is the background of the top half of the graph
@@ -115,13 +126,16 @@ fun VicoChart(data: Map<String, Float>) {
                 .fillMaxWidth(0.9f)
                 .align(Alignment.Center)
         ) {
-            StatsGraph(data)
+            StatsGraph(data, markerVisibilityChangeListener)
         }
     }
 }
 
 @Composable
-fun StatsGraph(data: Map<String, Float>) {
+fun StatsGraph(
+    data: Map<String, Float>,
+    markerVisibilityChangeListener: MarkerVisibilityChangeListener
+) {
     val daysOfWeek = data.keys.toList()
     val values = data.values
 
@@ -135,9 +149,12 @@ fun StatsGraph(data: Map<String, Float>) {
         textAlignment = Layout.Alignment.ALIGN_CENTER
     }
 
+    val marker = rememberMarkerComponent(label =  myLabel)
+
     //Display the Graph
     CartesianChartHost(
-        scrollState = rememberVicoScrollState(scrollEnabled = true),
+    markerVisibilityChangeListener= markerVisibilityChangeListener,
+    scrollState = rememberVicoScrollState(scrollEnabled = true),
         chart = rememberCartesianChart(
             rememberColumnCartesianLayer(
                 ColumnCartesianLayer.ColumnProvider.series(
@@ -154,7 +171,7 @@ fun StatsGraph(data: Map<String, Float>) {
             ),
         ),
         modelProducer =  modelProducer,
-        marker = rememberMarkerComponent(label =  myLabel),
+        marker = marker,
     )
 }
 
@@ -209,7 +226,6 @@ fun getFormattedTime(time: Int): String {
             else -> String.format("%02d SEC", seconds)
         }
     }
-
 }
 
 
@@ -240,11 +256,6 @@ private fun StatsPagePreview() {
     ProductivityTimerTheme {
         StatsPageContent(
             data = mapOf(
-                "n" to 1f,
-                "1" to 1f,
-                "2" to 1f,
-                "3" to 1f,
-                "4" to 1f,
                 "Mon" to 2f,
                 "Tue" to 9f,
                 "Wed" to 3f,
@@ -257,8 +268,8 @@ private fun StatsPagePreview() {
                 TimerRecord(1, 312, 100),
                 TimerRecord(1, 978, 100),
             ),
-            deleteTimer =  {}
-
+            deleteTimer =  {},
+            markerVisibilityChangeListener =  EmptyMarkerVisibilityChangeListener,
         )
     }
 }
@@ -282,9 +293,16 @@ private fun StatsPagePreviewDarkMode() {
                 TimerRecord(1, 312, 100),
                 TimerRecord(1, 978, 100),
             ),
-            deleteTimer =  {}
-
+            deleteTimer =  {},
+            markerVisibilityChangeListener = EmptyMarkerVisibilityChangeListener,
         )
     }
     }
+}
+
+//Interface needs to be passed for MarkerVisibilityChangeListener in graph so this allows the preview to set the default
+object EmptyMarkerVisibilityChangeListener : MarkerVisibilityChangeListener {
+    override fun onMarkerShown(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {}
+    override fun onMarkerHidden(marker: Marker) {}
+    override fun onMarkerMoved(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {}
 }
