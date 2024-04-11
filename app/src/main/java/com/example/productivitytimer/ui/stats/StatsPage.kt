@@ -3,6 +3,7 @@ package com.example.productivitytimer.ui.stats
 import android.content.res.Configuration
 import android.text.Layout
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -23,7 +24,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalInspectionMode
@@ -94,22 +94,19 @@ fun TimeProductiveCircle() {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .padding(vertical = 10.dp)
-            .clip(shape = RoundedCornerShape(5.dp))
-            .background(MaterialTheme.colorScheme.primary)
             .fillMaxWidth(0.9f)
-            .padding(vertical = 20.dp)
-        
-    ) {
-        Box(modifier = Modifier.background(Color.Red))
+            .background(Color(0xFF222226), CircleShape) // Apply the black background 
+            .border(2.dp, Color.White, CircleShape) // Then apply the red border over the background.
+            .padding(10.dp)
+    ){
         Text(
             text = "Time Productive - May 14th",
-            color =  MaterialTheme.colorScheme.secondary,
+            color =  Color.White,
             fontSize =  14.sp
         )
         Text(
             text = "12HRS 05MIN 33 SEC",
-            color =  MaterialTheme.colorScheme.secondary,
+            color =  Color.White,
             fontSize =  26.sp
         )
     }
@@ -274,10 +271,10 @@ fun AllTimersText() {
     Text(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(35.dp)
+            .padding(top = 35.dp)
         ,
         fontSize = 50.sp,
-        text = "All Timers",
+        text = "All  Timers",
         textAlign = TextAlign.Center,
     )
 }
@@ -297,7 +294,7 @@ private fun StatsPagePreview() {
     ProductivityTimerTheme {
         StatsPageContent(
             data = mapOf(
-                "Mon" to 2f,
+                "Mon" to 3f,
                 "Tue" to 9f,
                 "Wed" to 3f,
                 "Thu" to 3f,
@@ -321,7 +318,7 @@ private fun StatsPagePreviewDarkMode() {
     ProductivityTimerTheme { Surface{
         StatsPageContent(
             data = mapOf(
-                "Sun" to 1f,
+                "Sun" to 2f,
                 "Mon" to 2f,
                 "Tue" to 9f,
                 "Wed" to 3f,
