@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -22,6 +23,8 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.text.font.FontWeight
@@ -80,10 +83,38 @@ fun StatsPageContent(
     ){
         StatsText()
         VicoChart(data, markerVisibilityChangeListener)
+        TimeProductiveCircle()
         AllTimersText()
         AllTimers(timerRecords, deleteTimer = deleteTimer)
     }
 }
+
+@Composable
+fun TimeProductiveCircle() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .padding(vertical = 10.dp)
+            .clip(shape = RoundedCornerShape(5.dp))
+            .background(MaterialTheme.colorScheme.primary)
+            .fillMaxWidth(0.9f)
+            .padding(vertical = 20.dp)
+        
+    ) {
+        Box(modifier = Modifier.background(Color.Red))
+        Text(
+            text = "Time Productive - May 14th",
+            color =  MaterialTheme.colorScheme.secondary,
+            fontSize =  14.sp
+        )
+        Text(
+            text = "12HRS 05MIN 33 SEC",
+            color =  MaterialTheme.colorScheme.secondary,
+            fontSize =  26.sp
+        )
+    }
+}
+
 
 @Composable
 fun StatsText() {
@@ -105,8 +136,9 @@ fun VicoChart(
     data: Map<String, Float>,
     markerVisibilityChangeListener: MarkerVisibilityChangeListener
 ) {
-    Box(modifier = Modifier.fillMaxWidth()) { //This allows the background and foreground to be separate
-        Column(modifier = Modifier.matchParentSize()) { // This is the background
+    Box(modifier = Modifier.fillMaxWidth().padding(bottom = 40.dp)) { //This allows the background and foreground to be separate
+        Column(modifier = Modifier.matchParentSize()
+        ) { // This is the background
             Box( // This is the background of the top half of the graph
                 modifier = Modifier
                     .weight(1f)
@@ -249,6 +281,15 @@ fun AllTimersText() {
         textAlign = TextAlign.Center,
     )
 }
+
+@Preview(apiLevel = 33, showBackground = true)
+@Composable
+private fun TimeProductiveCirclePreview() {
+    ProductivityTimerTheme {
+        TimeProductiveCircle()
+    }
+}
+
 
 @Preview(apiLevel = 33, showBackground = true)
 @Composable
