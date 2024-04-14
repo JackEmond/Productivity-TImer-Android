@@ -60,11 +60,14 @@ fun StatsPage(
 ){
     val data by statsVM.graphData.observeAsState(initial = emptyMap())
     val timerRecords by statsVM.getAllTimers().observeAsState(initial = emptyList())
+    val timeProductiveThatDay by statsVM.timeProductiveThatDay.observeAsState(initial = 0f)
+
     StatsPageContent(
         data = data,
         timerRecords = timerRecords,
         deleteTimer = { id-> statsVM.deleteTimer(id)},
         markerVisibilityChangeListener = statsVM.markerVisibilityChangeListener,
+        timeProductiveThatDay = timeProductiveThatDay
         )
 }
 
@@ -74,6 +77,7 @@ fun StatsPageContent(
     timerRecords: List<TimerRecord>,
     deleteTimer: (Int) -> Unit,
     markerVisibilityChangeListener: MarkerVisibilityChangeListener,
+    timeProductiveThatDay: Float,
     ) {
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -83,14 +87,14 @@ fun StatsPageContent(
     ){
         StatsText()
         VicoChart(data, markerVisibilityChangeListener)
-        TimeProductiveCircle()
+        TimeProductiveCircle(timeProductiveThatDay)
         AllTimersText()
         AllTimers(timerRecords, deleteTimer = deleteTimer)
     }
 }
 
 @Composable
-fun TimeProductiveCircle() {
+fun TimeProductiveCircle(timeProductiveThatDay: Float) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -105,7 +109,7 @@ fun TimeProductiveCircle() {
             fontSize =  14.sp
         )
         Text(
-            text = "12HRS 05MIN 33 SEC",
+            text = timeProductiveThatDay.toString(),
             color =  Color.White,
             fontSize =  26.sp
         )
@@ -279,14 +283,6 @@ fun AllTimersText() {
     )
 }
 
-@Preview(apiLevel = 33, showBackground = true)
-@Composable
-private fun TimeProductiveCirclePreview() {
-    ProductivityTimerTheme {
-        TimeProductiveCircle()
-    }
-}
-
 
 @Preview(apiLevel = 33, showBackground = true)
 @Composable
@@ -308,6 +304,7 @@ private fun StatsPagePreview() {
             ),
             deleteTimer =  {},
             markerVisibilityChangeListener =  EmptyMarkerVisibilityChangeListener,
+            timeProductiveThatDay = 5f,
         )
     }
 }
@@ -333,6 +330,7 @@ private fun StatsPagePreviewDarkMode() {
             ),
             deleteTimer =  {},
             markerVisibilityChangeListener = EmptyMarkerVisibilityChangeListener,
+            timeProductiveThatDay = 65f,
         )
     }
     }
