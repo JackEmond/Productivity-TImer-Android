@@ -1,6 +1,5 @@
 package com.example.productivitytimer.ui.stats
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,6 +12,7 @@ import com.patrykandpatrick.vico.core.marker.Marker
 import com.patrykandpatrick.vico.core.marker.MarkerVisibilityChangeListener
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -23,42 +23,40 @@ import javax.inject.Inject
 class StatsViewModel @Inject constructor(
     private val repository: ProductivityTimerDBRepository,
 ): ViewModel() {
-
-    init {
-        viewModelScope.launch {
-            repository.getTimersFromLast7Days().collect { daySums ->
-                _graphData.value = transformCurrWeekOfTimersToGraphData(daySums)
-            }
-        }
-    }
     private val _graphData = MutableLiveData(mapOf("1" to 0f))
     val graphData: LiveData<Map<String, Float>> = _graphData
 
+    private val _timeProductiveThatDay = MutableLiveData(0f)
+    val timeProductiveThatDay: MutableLiveData<Float> = _timeProductiveThatDay
 
-    private fun transformCurrWeekOfTimersToGraphData(timeRanEachDay: List<TimerRecordDao.TimeRanEachDay>): Map<String, Float> {
 
+    init {
+        viewModelScope.launch {
+            repository.getTimeProductiveEachDay(7).collect { daySums ->
+               _graphData.value = transformTimersToGraphData(daySums)
+                _timeProductiveThatDay.value = _graphData.value?.entries?.lastOrNull()?.value
+            }
+        }
+    }
+
+    private fun transformTimersToGraphData(timeRanEachDay: List<TimerRecordDao.TimeRanEachDay>): Map<String, Float> {
         val map = mutableMapOf<String,Float>()
 
-        val currDay  = Calendar.getInstance().get(Calendar.DAY_OF_WEEK)
-        val daysOfTheWeek = arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
+        val calendar = Calendar.getInstance()
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd")
+        val dateFormat = SimpleDateFormat("MM/dd")
+        calendar.add(Calendar.DATE, -6)
 
-        for (i in currDay until daysOfTheWeek.size) {
-            map[daysOfTheWeek[i]] = 0F
-        }
-        for (i in 0 until currDay) {
-            map[daysOfTheWeek[i]] = 0F
-        }
-
-        var maxTime = 0
-        for (t in timeRanEachDay) {
-            if (t.sumTime > maxTime) maxTime = t.sumTime
+        // Get the last 7 days
+        for (i in 1..7) {
+            map[dateFormat.format(calendar.time)] = 0f
+            calendar.add(Calendar.DATE, 1)
         }
 
-
-        for (t in timeRanEachDay) {
-            val dayOfWeek = covertDayOfWeekFromIntToString(t.dayOfWeek)
-            val time = convertTimeToCorrectFormat(t.sumTime, maxTime = maxTime)
-            map[dayOfWeek] = map[dayOfWeek]?.plus(time) ?: time
+        for(item in timeRanEachDay){
+            val date = inputFormat.parse(item.day)
+            val updatedDate = dateFormat.format(date)
+            map[updatedDate] = item.sumTime.toFloat()
         }
         return map
     }
@@ -66,33 +64,27 @@ class StatsViewModel @Inject constructor(
     val markerVisibilityChangeListener = object : MarkerVisibilityChangeListener {
         override fun onMarkerShown(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {
             markerEntryModels.forEach { entryModel ->
-                Log.d("MarkerVisibility", "Marker shown with index: ${entryModel.index}")
+                val markerValue = _graphData.value?.entries?.elementAtOrNull(entryModel.index)?.value
+                updateSelectedDateInfo(markerValue)
             }
         }
-
-        override fun onMarkerHidden(marker: Marker) {
-            // Handle marker being hidden, if needed
-        }
-
-        override fun onMarkerMoved(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {
-            // Optional: Handle marker movement
-        }
+        override fun onMarkerHidden(marker: Marker) {}
+        override fun onMarkerMoved(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {}
     }
 
-    private fun convertTimeToCorrectFormat(time: Int, maxTime:Int): Float {
-        return if(maxTime < 60){
-            time.toFloat()
-        } else if(maxTime < 3600){
-            time.toFloat() / 60
-        } else{
-            time.toFloat() / 3600
-        }
+    private fun updateSelectedDateInfo(markerKey: Float?) {
+        // update TimeClicked  the time clicked
+        _timeProductiveThatDay.value = markerKey
+
+        // Show the time clicked in the previous 7 days of the timer
+
+
+        // Show the time clicked in the previous 30 days of the timer
+
+
+        // Show timers for the given day
     }
 
-    private fun covertDayOfWeekFromIntToString(dayOfWeek: String): String {
-        val daysOfTheWeek = arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
-        return daysOfTheWeek[dayOfWeek.toInt()]
-    }
 
     fun getAllTimers(): LiveData<List<TimerRecord>> {
         return repository.getAllTimers().map { list ->
@@ -109,8 +101,4 @@ class StatsViewModel @Inject constructor(
     fun deleteTimer(id: Int) = viewModelScope.launch{
         repository.deleteRecord(id)
     }
-
-
-
-
 }
