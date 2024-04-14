@@ -7,7 +7,6 @@ import androidx.lifecycle.map
 import androidx.lifecycle.viewModelScope
 import com.example.productivitytimer.data.ProductivityTimerDBRepository
 import com.example.productivitytimer.data.local.TimerRecordDao
-import com.example.productivitytimer.ui.timer.TimerRecord
 import com.patrykandpatrick.vico.core.marker.Marker
 import com.patrykandpatrick.vico.core.marker.MarkerVisibilityChangeListener
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,6 +16,11 @@ import java.util.Calendar
 import javax.inject.Inject
 
 
+data class TimerRecord(
+    val id: Int,
+    val time: Int,
+    val date:Long
+)
 
 
 @HiltViewModel

@@ -19,12 +19,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class TimerRecord(
-    val id: Int,
-    val time: Int,
-    val date:Long
-)
-
 @HiltViewModel
 class ProductivityTimerViewModel @Inject constructor(
     private val repository: ProductivityTimerDBRepository,
