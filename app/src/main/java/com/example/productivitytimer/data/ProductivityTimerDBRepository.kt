@@ -27,19 +27,19 @@ class ProductivityTimerDBRepository @Inject constructor(
         localDataSource.deleteById(id)
     }
 
+    fun getTimeProductiveEachDay(numberOfDaysAgo: Int): Flow<List<TimerRecordDao.TimeRanEachDay>> {
+        val currentDay = Calendar.getInstance()
+        val laterTime = currentDay.timeInMillis
 
+        val earlierDate = Calendar.getInstance()
+        earlierDate.add(Calendar.DAY_OF_YEAR, -numberOfDaysAgo+1)
+        earlierDate.set(Calendar.HOUR_OF_DAY, 0)
+        earlierDate.set(Calendar.MINUTE, 0)
+        earlierDate.set(Calendar.SECOND, 0)
+        earlierDate.set(Calendar.MILLISECOND, 0)
+        val earlierTime = earlierDate.timeInMillis
 
-    fun getTimersFromLast7Days(): Flow<List<TimerRecordDao.TimeRanEachDay>> {
-        //Get time from 7 days ago at midnight
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, -7)
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        calendar.set(Calendar.MINUTE, 0)
-        calendar.set(Calendar.SECOND, 0)
-        calendar.set(Calendar.MILLISECOND, 0)
-        val currentTime = calendar.timeInMillis
-
-        return localDataSource.getTimersFromLast7Days(currentTime)
+        return localDataSource.getTimeProductiveEachDay(laterDate = laterTime, earlierDate = earlierTime)
     }
 
 
