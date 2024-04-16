@@ -99,7 +99,11 @@ fun TimeProductiveCircle(timeProductiveThatDay: Float) {
         modifier = Modifier
             .fillMaxWidth(0.9f)
             .background(Color(0xFF222226), CircleShape) // Apply the black background 
-            .border(2.dp, Color.White, CircleShape) // Then apply the red border over the background.
+            .border(
+                2.dp,
+                Color.White,
+                CircleShape
+            ) // Then apply the red border over the background.
             .padding(10.dp)
     ){
         Text(
@@ -136,7 +140,9 @@ fun VicoChart(
     data: Map<String, Float>,
     markerVisibilityChangeListener: MarkerVisibilityChangeListener
 ) {
-    Box(modifier = Modifier.fillMaxWidth().padding(bottom = 40.dp)) { //This allows the background and foreground to be separate
+    Box(modifier = Modifier
+        .fillMaxWidth()
+        .padding(bottom = 40.dp)) { //This allows the background and foreground to be separate
         Column(modifier = Modifier.matchParentSize()
         ) { // This is the background
             Box( // This is the background of the top half of the graph
@@ -227,7 +233,7 @@ fun DisplayTimer(timerRecord: TimerRecord, deleteTimer:() -> Unit) {
     ){
         Column{
             Text(
-                text = getFormattedTime(timerRecord.time),
+                text = getFormattedTime(timerRecord),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Black)
 
@@ -246,16 +252,12 @@ fun DisplayTimer(timerRecord: TimerRecord, deleteTimer:() -> Unit) {
 }
 
 @Composable
-fun getFormattedTime(time: Int): String {
-    return remember(time){
-        val hours = time / 3600
-        val minutes = (time % 3600) / 60
-        val seconds = time % 60
-
+fun getFormattedTime(timerRecord: TimerRecord): String {
+    return remember(timerRecord){
         when {
-            hours > 0 -> String.format("%02d HRS %02d MIN %02d SEC", hours, minutes, seconds)
-            minutes > 0 -> String.format("%02d MIN %02d SEC", minutes, seconds)
-            else -> String.format("%02d SEC", seconds)
+            timerRecord.hours > 0 -> String.format("%02d HRS %02d MIN %02d SEC", timerRecord.hours, timerRecord.minutes, timerRecord.seconds)
+            timerRecord.minutes > 0 -> String.format("%02d MIN %02d SEC", timerRecord.minutes, timerRecord.seconds)
+            else -> String.format("%02d SEC", timerRecord.seconds)
         }
     }
 }
@@ -297,9 +299,9 @@ private fun StatsPagePreview() {
                 "Sat" to 3f,
             ),
             timerRecords =  listOf(
-                TimerRecord(1, 50, 100),
-                TimerRecord(1, 312, 100),
-                TimerRecord(1, 978, 100),
+                TimerRecord(1, 50, 1, 32, 55),
+                TimerRecord(1, 312, 4, 14, 12),
+                TimerRecord(1, 978, 2, 6, 8),
             ),
             deleteTimer =  {},
             markerVisibilityChangeListener =  EmptyMarkerVisibilityChangeListener,
@@ -323,9 +325,9 @@ private fun StatsPagePreviewDarkMode() {
                 "Sat" to 3f,
             ),
             timerRecords =  listOf(
-                TimerRecord(1, 50, 100),
-                TimerRecord(1, 312, 100),
-                TimerRecord(1, 978, 100),
+                TimerRecord(1, 50, 1, 32, 55),
+                TimerRecord(1, 312, 4, 14, 12),
+                TimerRecord(1, 978, 2, 6, 8),
             ),
             deleteTimer =  {},
             markerVisibilityChangeListener = EmptyMarkerVisibilityChangeListener,

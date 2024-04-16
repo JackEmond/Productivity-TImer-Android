@@ -18,8 +18,10 @@ import javax.inject.Inject
 
 data class TimerRecord(
     val id: Int,
-    val time: Int,
-    val date:Long
+    val date:Long,
+    val hours: Int,
+    val minutes: Int,
+    val seconds: Int
 )
 
 
@@ -95,8 +97,10 @@ class StatsViewModel @Inject constructor(
             list.map { timerRecord ->
                 TimerRecord(
                     id = timerRecord.id,
-                    time = timerRecord.time,
-                    date = timerRecord.date
+                    date = timerRecord.date,
+                    hours = timerRecord.time/3600,
+                    minutes = (timerRecord.time % 3600) / 60,
+                    seconds= timerRecord.time % 60
                 )
             }
         }
