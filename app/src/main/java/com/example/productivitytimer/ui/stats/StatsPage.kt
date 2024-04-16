@@ -49,9 +49,6 @@ import com.patrykandpatrick.vico.core.marker.Marker
 import com.patrykandpatrick.vico.core.marker.MarkerVisibilityChangeListener
 import com.patrykandpatrick.vico.core.model.CartesianChartModelProducer
 import com.patrykandpatrick.vico.core.model.columnSeries
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
 @Composable
 fun StatsPage(
@@ -238,7 +235,7 @@ fun DisplayTimer(timerRecord: TimerRecord, deleteTimer:() -> Unit) {
                 fontWeight = FontWeight.Black)
 
             Text(
-                text = getFormattedDate(timerRecord.date),
+                text = timerRecord.date,
                 fontSize = 12.sp
             )
         }
@@ -262,14 +259,6 @@ fun getFormattedTime(timerRecord: TimerRecord): String {
     }
 }
 
-
-@Composable
-fun getFormattedDate(date: Long): String {
-    return remember(date) {
-        val formatter = SimpleDateFormat("MM-dd-yyyy", Locale.getDefault())
-        formatter.format(Date(date)).toString()
-    }
-}
 
 @Composable
 fun AllTimersText() {
@@ -299,9 +288,9 @@ private fun StatsPagePreview() {
                 "Sat" to 3f,
             ),
             timerRecords =  listOf(
-                TimerRecord(1, 50, 1, 32, 55),
-                TimerRecord(1, 312, 4, 14, 12),
-                TimerRecord(1, 978, 2, 6, 8),
+                TimerRecord(1, "02-07-2024", 1, 32, 55),
+                TimerRecord(1, "03-23-2024", 4, 14, 12),
+                TimerRecord(1, "03-24-2024", 2, 6, 8),
             ),
             deleteTimer =  {},
             markerVisibilityChangeListener =  EmptyMarkerVisibilityChangeListener,
@@ -325,9 +314,9 @@ private fun StatsPagePreviewDarkMode() {
                 "Sat" to 3f,
             ),
             timerRecords =  listOf(
-                TimerRecord(1, 50, 1, 32, 55),
-                TimerRecord(1, 312, 4, 14, 12),
-                TimerRecord(1, 978, 2, 6, 8),
+                TimerRecord(1, "02-07-2024", 1, 32, 55),
+                TimerRecord(1, "03-23-2024", 4, 14, 12),
+                TimerRecord(1, "03-24-2024", 2, 6, 8),
             ),
             deleteTimer =  {},
             markerVisibilityChangeListener = EmptyMarkerVisibilityChangeListener,

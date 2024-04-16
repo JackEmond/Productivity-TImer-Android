@@ -13,13 +13,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
 
 data class TimerRecord(
     val id: Int,
-    val date:Long,
+    val date: String,
     val hours: Int,
     val minutes: Int,
     val seconds: Int
@@ -98,13 +99,18 @@ class StatsViewModel @Inject constructor(
             list.map { timerRecord ->
                 TimerRecord(
                     id = timerRecord.id,
-                    date = timerRecord.date,
+                    date = formatDate(timerRecord.date),
                     hours = timerRecord.time/3600,
                     minutes = (timerRecord.time % 3600) / 60,
                     seconds= timerRecord.time % 60
                 )
             }
         }
+    }
+
+    private fun formatDate(date: Long): String {
+        val formatter = SimpleDateFormat("MM-dd-yyyy", Locale.getDefault())
+        return formatter.format(Date(date)).toString()
     }
 
     fun deleteTimer(id: Int) = viewModelScope.launch{
