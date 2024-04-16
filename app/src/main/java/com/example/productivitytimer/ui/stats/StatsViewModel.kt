@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 
 
@@ -49,8 +50,8 @@ class StatsViewModel @Inject constructor(
         val map = mutableMapOf<String,Float>()
 
         val calendar = Calendar.getInstance()
-        val inputFormat = SimpleDateFormat("yyyy-MM-dd")
-        val dateFormat = SimpleDateFormat("MM/dd")
+        val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+        val dateFormat = SimpleDateFormat("MM/dd", Locale.US)
         calendar.add(Calendar.DATE, -6)
 
         // Get the last 7 days
