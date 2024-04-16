@@ -61,7 +61,7 @@ class StatsViewModel @Inject constructor(
         }
 
         for(item in timeRanEachDay){
-            val date = inputFormat.parse(item.day)
+            val date = inputFormat.parse(item.day) ?: continue
             val updatedDate = dateFormat.format(date)
             map[updatedDate] = item.sumTime.toFloat()
         }
