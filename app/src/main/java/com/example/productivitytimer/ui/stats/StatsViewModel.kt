@@ -13,7 +13,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
-import java.util.Date
 import java.util.Locale
 import javax.inject.Inject
 
@@ -119,7 +118,7 @@ class StatsViewModel @Inject constructor(
 
     private fun formatDate(date: Long): String {
         val formatter = SimpleDateFormat("MM-dd-yyyy", Locale.getDefault())
-        return formatter.format(Date(date)).toString()
+        return formatter.format(date).toString()
     }
 
     fun deleteTimer(id: Int) = viewModelScope.launch{
