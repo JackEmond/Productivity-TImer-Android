@@ -18,7 +18,7 @@ interface TimerRecordDao {
     @Query("SELECT SUM(time) as sumTime, strftime('%w', date / 1000, 'unixepoch') as day FROM timerrecord WHERE date > :sevenDaysAgo GROUP BY day")
     fun getTimersFromLast7Days(sevenDaysAgo: Long): Flow<List<TimeRanEachDay>>
 
-    @Query("SELECT date(date/1000, 'unixepoch') as day, SUM(time) as sumTime FROM timerrecord WHERE date >= :earlierDate AND date <= :laterDate GROUP BY day ORDER BY day DESC")
+    @Query("SELECT date(date/1000, 'unixepoch', 'localtime') as day, SUM(time) as sumTime FROM timerrecord WHERE date >= :earlierDate AND date <= :laterDate GROUP BY day ORDER BY day DESC")
     fun getTimeProductiveEachDay(earlierDate: Long, laterDate: Long): Flow<List<TimeRanEachDay>>
 
     data class TimeRanEachDay(val day: String, val sumTime: Int)
