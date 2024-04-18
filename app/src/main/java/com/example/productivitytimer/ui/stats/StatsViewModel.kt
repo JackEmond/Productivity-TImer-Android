@@ -19,80 +19,91 @@ import javax.inject.Inject
 
 
 data class TimerRecord(
-    val id: Int,
-    val date: String,
-    val hours: Int,
-    val minutes: Int,
-    val seconds: Int
-)
+    val id: Int = 0,
+    var date: String = "",
+    var timeInSeconds: Int = 0
+) {
+    val hours: Int
+        get() = timeInSeconds / 3600
 
+    val minutes: Int
+        get() = (timeInSeconds % 3600) / 60
+
+    val seconds: Int
+        get() = timeInSeconds % 60
+}
 
 @HiltViewModel
 class StatsViewModel @Inject constructor(
     private val repository: ProductivityTimerDBRepository,
 ): ViewModel() {
-    private val _graphData = MutableLiveData(mapOf("1" to 0f))
-    val graphData: LiveData<Map<String, Float>> = _graphData
 
-    private val _timeProductiveThatDay = MutableLiveData(0f)
-    val timeProductiveThatDay: MutableLiveData<Float> = _timeProductiveThatDay
+    private val _graphData = MutableLiveData(mapOf("1" to 0))
+    val graphData: LiveData<Map<String, Int>> = _graphData
 
+
+    private val _timeProductiveThatDay = MutableLiveData( TimerRecord(
+        id = 0,
+        date = "",
+        timeInSeconds = 0,
+    ))
+    val timeProductiveThatDay: MutableLiveData<TimerRecord> = _timeProductiveThatDay
 
     init {
         viewModelScope.launch {
             repository.getTimeProductiveEachDay(7).collect { daySums ->
                _graphData.value = transformTimersToGraphData(daySums)
-                _timeProductiveThatDay.value = _graphData.value?.entries?.lastOrNull()?.value
+                _timeProductiveThatDay.value?.timeInSeconds = _graphData.value?.entries?.lastOrNull()?.value ?: 0
             }
         }
     }
 
-    private fun transformTimersToGraphData(timeRanEachDay: List<TimerRecordDao.TimeRanEachDay>): Map<String, Float> {
-        val map = mutableMapOf<String,Float>()
+    private val earlyDate = -6
 
-        val calendar = Calendar.getInstance()
+
+    private fun transformTimersToGraphData(timeRanEachDay: List<TimerRecordDao.TimeRanEachDay>): Map<String, Int> {
+        val map = mutableMapOf<String,Int>() //Create a empty map which will contain total time productive that day and a string representing the date
         val inputFormat = SimpleDateFormat("yyyy-MM-dd", Locale.US)
         val dateFormat = SimpleDateFormat("MM/dd", Locale.US)
-        calendar.add(Calendar.DATE, -6)
+
+        val calendar = Calendar.getInstance() //Get the Current Day
+        calendar.add(Calendar.DATE, -6) //Get The previous 7 days. (0 is the current day, -1 is the day prior)
 
         // Get the last 7 days
         for (i in 1..7) {
-            map[dateFormat.format(calendar.time)] = 0f
+            map[dateFormat.format(calendar.time)] = 0 //
             calendar.add(Calendar.DATE, 1)
         }
 
         for(item in timeRanEachDay){
-            val date = inputFormat.parse(item.day) ?: continue
-            val updatedDate = dateFormat.format(date)
-            map[updatedDate] = item.sumTime.toFloat()
+            val date = inputFormat.parse(item.day) ?: continue //Convert to a Date
+            val updatedDate = dateFormat.format(date) // Format as a string
+            map[updatedDate] = item.sumTime //Insert map with correct info
         }
         return map
     }
 
+    private fun getDateSelected(index: Int): String{
+        val daySelected = earlyDate + index
+        val date = Calendar.getInstance()
+        date.add(Calendar.DAY_OF_YEAR, daySelected)
+        return  "${date.get(Calendar.MONTH) + 1}  / ${date.get(Calendar.DAY_OF_MONTH)}"
+    }
+
+
     val markerVisibilityChangeListener = object : MarkerVisibilityChangeListener {
         override fun onMarkerShown(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {
             markerEntryModels.forEach { entryModel ->
-                val markerValue = _graphData.value?.entries?.elementAtOrNull(entryModel.index)?.value
-                updateSelectedDateInfo(markerValue)
+                timeProductiveThatDay.value = TimerRecord(
+                    id = entryModel.index,
+                    date = getDateSelected(entryModel.index),
+                    timeInSeconds = _graphData.value?.entries?.elementAtOrNull(entryModel.index)?.value ?: 0
+                )
             }
         }
         override fun onMarkerHidden(marker: Marker) {}
         override fun onMarkerMoved(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {}
     }
-
-    private fun updateSelectedDateInfo(markerKey: Float?) {
-        // update TimeClicked  the time clicked
-        _timeProductiveThatDay.value = markerKey
-
-        // Show the time clicked in the previous 7 days of the timer
-
-
-        // Show the time clicked in the previous 30 days of the timer
-
-
-        // Show timers for the given day
-    }
-
 
     fun getAllTimers(): LiveData<List<TimerRecord>> {
         return repository.getAllTimers().map { list ->
@@ -100,9 +111,7 @@ class StatsViewModel @Inject constructor(
                 TimerRecord(
                     id = timerRecord.id,
                     date = formatDate(timerRecord.date),
-                    hours = timerRecord.time/3600,
-                    minutes = (timerRecord.time % 3600) / 60,
-                    seconds= timerRecord.time % 60
+                    timeInSeconds =  timerRecord.time
                 )
             }
         }

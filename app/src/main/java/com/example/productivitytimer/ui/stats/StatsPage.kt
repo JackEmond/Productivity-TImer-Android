@@ -56,7 +56,7 @@ fun StatsPage(
 ){
     val data by statsVM.graphData.observeAsState(initial = emptyMap())
     val timerRecords by statsVM.getAllTimers().observeAsState(initial = emptyList())
-    val timeProductiveThatDay by statsVM.timeProductiveThatDay.observeAsState(initial = 0f)
+    val timeProductiveThatDay by statsVM.timeProductiveThatDay.observeAsState(initial = TimerRecord(id = 0, date="May-4th", timeInSeconds = 4))
 
     StatsPageContent(
         data = data,
@@ -69,11 +69,11 @@ fun StatsPage(
 
 @Composable
 fun StatsPageContent(
-    data: Map<String, Float>,
+    data: Map<String, Int>,
     timerRecords: List<TimerRecord>,
     deleteTimer: (Int) -> Unit,
     markerVisibilityChangeListener: MarkerVisibilityChangeListener,
-    timeProductiveThatDay: Float,
+    timeProductiveThatDay: TimerRecord,
     ) {
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -90,7 +90,7 @@ fun StatsPageContent(
 }
 
 @Composable
-fun TimeProductiveCircle(timeProductiveThatDay: Float) {
+fun TimeProductiveCircle(timeProductiveThatDay: TimerRecord) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
@@ -104,12 +104,12 @@ fun TimeProductiveCircle(timeProductiveThatDay: Float) {
             .padding(10.dp)
     ){
         Text(
-            text = "Time Productive - May 14th",
+            text = "Time Productive - ${timeProductiveThatDay.date}",
             color =  Color.White,
             fontSize =  14.sp
         )
         Text(
-            text = timeProductiveThatDay.toString(),
+            text = getFormattedTime(timerRecord = timeProductiveThatDay),
             color =  Color.White,
             fontSize =  26.sp
         )
@@ -134,7 +134,7 @@ fun StatsText() {
 
 @Composable
 fun VicoChart(
-    data: Map<String, Float>,
+    data: Map<String, Int>,
     markerVisibilityChangeListener: MarkerVisibilityChangeListener
 ) {
     Box(modifier = Modifier
@@ -168,7 +168,7 @@ fun VicoChart(
 
 @Composable
 fun StatsGraph(
-    data: Map<String, Float>,
+    data: Map<String, Int>,
     markerVisibilityChangeListener: MarkerVisibilityChangeListener
 ) {
     val daysOfWeek = data.keys.toList()
@@ -280,21 +280,21 @@ private fun StatsPagePreview() {
     ProductivityTimerTheme {
         StatsPageContent(
             data = mapOf(
-                "Mon" to 3f,
-                "Tue" to 9f,
-                "Wed" to 3f,
-                "Thu" to 3f,
-                "Fri" to 4f,
-                "Sat" to 3f,
+                "Mon" to 3,
+                "Tue" to 9,
+                "Wed" to 3,
+                "Thu" to 3,
+                "Fri" to 4,
+                "Sat" to 3,
             ),
             timerRecords =  listOf(
-                TimerRecord(1, "02-07-2024", 1, 32, 55),
-                TimerRecord(1, "03-23-2024", 4, 14, 12),
-                TimerRecord(1, "03-24-2024", 2, 6, 8),
+                TimerRecord(1, "02-07-2024", 412),
+                TimerRecord(1, "03-23-2024", 336),
+                TimerRecord(1, "03-24-2024", 512),
             ),
             deleteTimer =  {},
             markerVisibilityChangeListener =  EmptyMarkerVisibilityChangeListener,
-            timeProductiveThatDay = 5f,
+            timeProductiveThatDay =  TimerRecord(1, "02-07-2024", 412),
         )
     }
 }
@@ -305,22 +305,21 @@ private fun StatsPagePreviewDarkMode() {
     ProductivityTimerTheme { Surface{
         StatsPageContent(
             data = mapOf(
-                "Sun" to 2f,
-                "Mon" to 2f,
-                "Tue" to 9f,
-                "Wed" to 3f,
-                "Thu" to 3f,
-                "Fri" to 4f,
-                "Sat" to 3f,
+                "Mon" to 3,
+                "Tue" to 9,
+                "Wed" to 3,
+                "Thu" to 3,
+                "Fri" to 4,
+                "Sat" to 3,
             ),
             timerRecords =  listOf(
-                TimerRecord(1, "02-07-2024", 1, 32, 55),
-                TimerRecord(1, "03-23-2024", 4, 14, 12),
-                TimerRecord(1, "03-24-2024", 2, 6, 8),
+                TimerRecord(1, "02-07-2024", 412),
+                TimerRecord(1, "03-23-2024", 336),
+                TimerRecord(1, "03-24-2024", 512),
             ),
             deleteTimer =  {},
-            markerVisibilityChangeListener = EmptyMarkerVisibilityChangeListener,
-            timeProductiveThatDay = 65f,
+            markerVisibilityChangeListener =  EmptyMarkerVisibilityChangeListener,
+            timeProductiveThatDay =  TimerRecord(1, "02-07-2024", 412),
         )
     }
     }
