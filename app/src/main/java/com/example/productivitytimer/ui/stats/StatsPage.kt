@@ -109,7 +109,7 @@ fun TimeProductiveCircle(timeProductiveThatDay: TimerRecord) {
             fontSize =  14.sp
         )
         Text(
-            text = getFormattedTime(timerRecord = timeProductiveThatDay),
+            text = timeProductiveThatDay.getFormattedTime(),
             color =  Color.White,
             fontSize =  26.sp
         )
@@ -230,7 +230,7 @@ fun DisplayTimer(timerRecord: TimerRecord, deleteTimer:() -> Unit) {
     ){
         Column{
             Text(
-                text = getFormattedTime(timerRecord),
+                text = timerRecord.getFormattedTime(),
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Black)
 
@@ -248,16 +248,6 @@ fun DisplayTimer(timerRecord: TimerRecord, deleteTimer:() -> Unit) {
     }
 }
 
-@Composable
-fun getFormattedTime(timerRecord: TimerRecord): String {
-    return remember(timerRecord){
-        when {
-            timerRecord.hours > 0 -> String.format("%02d HRS %02d MIN %02d SEC", timerRecord.hours, timerRecord.minutes, timerRecord.seconds)
-            timerRecord.minutes > 0 -> String.format("%02d MIN %02d SEC", timerRecord.minutes, timerRecord.seconds)
-            else -> String.format("%02d SEC", timerRecord.seconds)
-        }
-    }
-}
 
 
 @Composable
