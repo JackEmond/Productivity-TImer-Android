@@ -267,54 +267,39 @@ fun AllTimersText() {
 @Preview(apiLevel = 33, showBackground = true)
 @Composable
 private fun StatsPagePreview() {
-    ProductivityTimerTheme {
-        StatsPageContent(
-            data = mapOf(
-                "Mon" to 3,
-                "Tue" to 9,
-                "Wed" to 3,
-                "Thu" to 3,
-                "Fri" to 4,
-                "Sat" to 3,
-            ),
-            timerRecords =  listOf(
-                TimerRecord(1, "02-07-2024", 412),
-                TimerRecord(1, "03-23-2024", 336),
-                TimerRecord(1, "03-24-2024", 512),
-            ),
-            deleteTimer =  {},
-            markerVisibilityChangeListener =  EmptyMarkerVisibilityChangeListener,
-            timeProductiveThatDay =  TimerRecord(1, "02-07-2024", 412),
-        )
-    }
+    PreviewContent()
 }
 
 @Preview(apiLevel = 33, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun StatsPagePreviewDarkMode() {
-    ProductivityTimerTheme { Surface{
+    PreviewContent()
+}
+
+@Composable
+private fun PreviewContent() {
+    ProductivityTimerTheme { Surface {
         StatsPageContent(
             data = mapOf(
-                "Mon" to 3,
+                "Mon" to 2,
                 "Tue" to 9,
                 "Wed" to 3,
                 "Thu" to 3,
                 "Fri" to 4,
                 "Sat" to 3,
             ),
-            timerRecords =  listOf(
+            timerRecords = listOf(
                 TimerRecord(1, "02-07-2024", 412),
                 TimerRecord(1, "03-23-2024", 336),
                 TimerRecord(1, "03-24-2024", 512),
             ),
-            deleteTimer =  {},
-            markerVisibilityChangeListener =  EmptyMarkerVisibilityChangeListener,
-            timeProductiveThatDay =  TimerRecord(1, "02-07-2024", 412),
+            deleteTimer = {},
+            markerVisibilityChangeListener = EmptyMarkerVisibilityChangeListener,
+            timeProductiveThatDay = TimerRecord(1, "02-07-2024", 412),
         )
     }
     }
 }
-
 //Interface needs to be passed for MarkerVisibilityChangeListener in graph so this allows the preview to set the default
 object EmptyMarkerVisibilityChangeListener : MarkerVisibilityChangeListener {
     override fun onMarkerShown(marker: Marker, markerEntryModels: List<Marker.EntryModel>) {}
