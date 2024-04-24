@@ -1,7 +1,6 @@
 package com.example.productivitytimer.ui.stats
 
 import android.content.res.Configuration
-import android.text.Layout
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -179,13 +178,6 @@ fun StatsGraph(
     if (LocalInspectionMode.current) {  modelProducer.tryRunTransaction { columnSeries { series(values) } } }
     LaunchedEffect(data){ modelProducer.tryRunTransaction { columnSeries { series(values) } } }
 
-    val myLabel = TextComponent.build {
-        textSizeSp = 16f
-        textAlignment = Layout.Alignment.ALIGN_CENTER
-    }
-
-    val marker = rememberMarkerComponent(label =  myLabel)
-
     //Display the Graph
     CartesianChartHost(
     markerVisibilityChangeListener= markerVisibilityChangeListener,
@@ -206,7 +198,7 @@ fun StatsGraph(
             ),
         ),
         modelProducer =  modelProducer,
-        marker = marker,
+        marker = rememberMarkerComponent(TextComponent.build{textSizeSp = 0f}),
     )
 }
 
@@ -248,8 +240,6 @@ fun DisplayTimer(timerRecord: TimerRecord, deleteTimer:() -> Unit) {
     }
 }
 
-
-
 @Composable
 fun AllTimersText() {
     Text(
@@ -281,7 +271,7 @@ private fun PreviewContent() {
     ProductivityTimerTheme { Surface {
         StatsPageContent(
             data = mapOf(
-                "Mon" to 2,
+                "Mon" to 4,
                 "Tue" to 9,
                 "Wed" to 3,
                 "Thu" to 3,
