@@ -25,11 +25,7 @@ class StatsViewModel @Inject constructor(
     val graphData: LiveData<Map<String, Int>> = _graphData
 
 
-    private val _timeProductiveThatDay = MutableLiveData( TimerRecord(
-        id = 0,
-        date = "",
-        timeInSeconds = 0,
-    ))
+    private val _timeProductiveThatDay = MutableLiveData(TimerRecord())
     val timeProductiveThatDay: MutableLiveData<TimerRecord> = _timeProductiveThatDay
 
     init {
